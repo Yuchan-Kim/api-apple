@@ -1,15 +1,15 @@
 name: Deploy mysite App
 
 
-#on:
-#  workflow_dispatch:
-#    inputs:
+on:
+  workflow_dispatch:
+    inputs:
 
 
-on: 
-  push: 
-    branches: 
-      - master # 마스터 브런치로 깃허브에 push되었을때
+#on: 
+#  push: 
+#    branches: 
+#      - master # 마스터 브런치로 깃허브에 push되었을때
 
 jobs: # 작업을 정의
   build-and-deploy:	# 첫번째작업: 빌드 및 배포
