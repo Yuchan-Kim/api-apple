@@ -214,7 +214,7 @@ public class AdminService {
 	    List<unionVo> storageList = adminDao.getStorageList(unionVo);
 
 	    return storageList;
-	}
+	} 
 
 	/* 상품 가져오기2 */
 	public List<unionVo> exeGetProductList2(int seriesNum) {
