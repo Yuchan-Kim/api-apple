@@ -39,9 +39,11 @@ public class AdminService {
 		String saveDir;
 		String osName = System.getProperty("os.name").toLowerCase();
 		if (osName.contains("mac")) {
-			saveDir = "/Users/yuchan/Desktop";
+//			saveDir = "/Users/yuchan/Desktop";
+			saveDir = "/home/ec2-user/upload/";
 		} else {
-			saveDir = "C:\\javaStudy\\upload";
+//			saveDir = "C:\\javaStudy\\upload";
+			saveDir = "/home/ec2-user/upload/";
 		}
 
 		// 오리지널 파일명
