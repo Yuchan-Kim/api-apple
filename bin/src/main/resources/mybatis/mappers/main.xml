@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+    <mapper namespace="main">
+    	<select id="getProProducts" resultType="com.javaex.vo.unionVo">
+		    <![CDATA[
+		        SELECT p.productNum, p.productName, pd.productPrice, p.mainImages
+		        FROM Product p
+		        JOIN ProductDetail pd ON p.productNum = pd.productNum
+		        WHERE p.productName LIKE '%Pro%'
+		        OR p.productName LIKE '%Pro Max%';
+		    ]]>
+		</select>
+		
+		<select id="getRegularProducts" resultType="com.javaex.vo.unionVo">
+		    <![CDATA[
+		        SELECT p.productNum, p.productName, pd.productPrice, p.mainImages
+		        FROM Product p
+		        JOIN ProductDetail pd ON p.productNum = pd.productNum
+		        WHERE p.productName NOT LIKE '%Pro%' 
+		        AND p.productName NOT LIKE '%Pro Max%';
+		    ]]>
+		</select>
+		
+		<select id="getSEModels" resultType="com.javaex.vo.unionVo">
+		    <![CDATA[
+		        SELECT p.productNum, p.productName, pd.productPrice, p.mainImages
+		        FROM Product p
+		        JOIN ProductDetail pd ON p.productNum = pd.productNum
+		        WHERE p.productName LIKE '%se%';
+		    ]]>
+		</select>
+
+    	
+    	<select id="searchProducts" parameterType="String" resultType="com.javaex.vo.unionVo">
+		    <![CDATA[
+		        SELECT 
+		            p.productNum, 
+		            p.productName, 
+		            pd.productPrice, 
+		            p.mainImages 
+		        FROM Product p
+		        JOIN ProductDetail pd ON p.productNum = pd.productNum
+		        WHERE p.productName LIKE #{keyword}
+		    ]]>
+		</select>
+
+		<select id="searchStores" parameterType="String" resultType="com.javaex.vo.unionVo">
+		    <![CDATA[
+		        SELECT 
+		            storeNum, 
+		            storeName, 
+		            storeAddress, 
+		            storeImage 
+		        FROM Store
+		        WHERE storeName LIKE #{keyword} OR storeAddress LIKE #{keyword}
+		    ]]>
+		</select>
+
+		<select id="searchCommunities" parameterType="String" resultType="com.javaex.vo.unionVo">
+		    <![CDATA[
+		        SELECT 
+		            boardNum, 
+		            boardTitle, 
+		            boardContent, 
+		            boardViews, 
+		            boardDate 
+		        FROM Community
+		        WHERE boardTitle LIKE #{keyword} OR boardContent LIKE #{keyword}
+		    ]]>
+		</select>
+    
+    
+    
+    
+    	
+   	</mapper>

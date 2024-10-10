@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="community">
+	<!-- 커뮤니티 리스트폼 -->
+	<select id="selectList" resultType="com.javaex.vo.CommunityVo">
+		<![CDATA[ 
+			select c.boardNum, 
+					c.productNum, 
+					c.userNum, 
+					c.boardContent, 
+					c.boardTitle, 
+					c.boardViews, 
+					c.boardDate, 
+					u.userName, 
+					u.userId, 
+					(SELECT COUNT(*) FROM Comment cm WHERE cm.boardNum = c.boardNum) AS commentCount 
+			from community c, user u 
+			where c.userNum = u.userNum 
+			order by c.boardNum desc 
+		]]>
+	</select>
+	
+	
+	<!-- 조회수 올리기 -->
+	<update id="increaseboardViewsCount" parameterType="int">
+		<![CDATA[ 
+			CALL increaseboardViewsCount(#{boardNum}) 
+		]]>
+	</update>
+	
+	
+	<!-- 상품이름 가져오기 -->
+	<select id="selectProduct" resultType="com.javaex.vo.CommunityVo">
+		<![CDATA[ 
+			select productNum, 
+					productName 
+			from product 
+		]]>
+	</select>
+	
+	
+	<!-- 커뮤니티 쓰기 -->
+	<insert id="insert" parameterType="com.javaex.vo.CommunityVo">
+		<![CDATA[ 
+			insert into community 
+			values (null, #{productNum}, #{userNum}, #{boardContent}, #{boardTitle}, 0, now()) 
+		]]>
+	</insert>
+	
+	
+	<!-- 읽기 하나씩 가져오기 -->
+	<select id="selectRead" parameterType="int" resultType="com.javaex.vo.CommunityVo">
+		<![CDATA[ 
+			select c.boardNum, 
+					c.productNum, 
+					c.userNum, 
+					c.boardContent, 
+					c.boardTitle, 
+					c.boardViews, 
+					c.boardDate, 
+					u.userName, 
+					u.userId, 
+					p.productName 
+			from community c, user u, product p 
+			where c.userNum = u.userNum 
+			and c.productNum = p.productNum 
+			and c.boardNum = #{boardNum} 
+		]]>
+	</select>
+	
+	
+	<!-- 특정 게시글에 달린 댓글 목록 조회 -->
+	<select id="selectCommentsByBoardNum" parameterType="int" resultType="com.javaex.vo.CommentVo">
+		<![CDATA[ 
+			select c.commentNum, 
+					c.userNum, 
+					c.boardNum, 
+					c.comment, 
+					c.commentDateTime, 
+					u.userId 
+			from comment c, user u 
+			where c.boardNum = #{boardNum} 
+			and u.userNum = c.userNum 
+			order by c.commentDateTime desc 
+		]]>
+	</select>
+	
+	
+	<!-- 답글 쓰기 -->
+	<insert id="insertComment" parameterType="com.javaex.vo.CommentVo">
+		<![CDATA[ 
+			insert into comment 
+			VALUES (null, #{userNum}, #{boardNum}, #{comment}, now()); 
+		]]>
+		<selectKey keyProperty="commentNum" resultType="int" order="AFTER">
+			<![CDATA[ 
+				select last_insert_id() 
+			]]>
+		</selectKey>
+	</insert>
+	
+	
+	<!-- 답글 쓴거 보이기 -->
+	<select id="selectComment" parameterType="int" resultType="com.javaex.vo.CommentVo">
+		<![CDATA[ 
+			select c.commentNum, 
+					c.userNum, 
+					c.boardNum, 
+					c.comment, 
+					c.commentDateTime, 
+					u.userId 
+			from comment c, user u 
+			where commentNum = #{commentNum} 
+			and c.userNum = u.userNum 
+		]]>
+	</select>
+	
+</mapper>

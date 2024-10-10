@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user">
+	<!-- 회원가입 -->
+	<insert id="insert" parameterType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			insert into user (`userId`, `userPw`, `userName`, `userAddress`, `userHp`) 
+			values(#{userId}, #{userPw}, #{userName}, #{userAddress}, #{userHp}) 
+		]]>
+	</insert>
+	
+	
+	<!-- 아이디 중복체크 -->
+	<select id="selectById" parameterType="String" resultType="int">
+		<![CDATA[ 
+			select count(*) 
+			from user 
+			where userId = #{userId} 
+		]]>
+	</select>
+	
+	
+	<!-- 로그인 -->
+	<select id="selectByIdPw" parameterType="com.javaex.vo.unionVo" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select userNum , 
+					userId , 
+					userName, 
+					userStatus 
+			from user 
+			where userId = #{userId} 
+			and userPw = #{userPw} 
+		]]>
+	</select>
+	
+	
+	<!-- 회원 마이페이지폼 회원정보 -->
+	<select id="userSelectOneByNum" parameterType="int" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select userNum, 
+					userId, 
+					userPw, 
+					userName, 
+					userAddress, 
+					userHp 
+			from user 
+			where userNum = #{userNum} 
+		]]>
+	</select>
+	
+	
+	<!-- 마이페이지 관심 -->
+	<select id="selectlikedProduct" parameterType="int" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select u.userNum, 
+					lp.likedProductNum, 
+					p.productName, 
+					pd.productNum, 
+					pd.productPrice, 
+					pi.imageSavedName,
+					pi.imagePrimary 
+			from user u, likedProduct lp, product p, productDetail pd, productImage pi 
+			where u.userNum = lp.userNum 
+			and lp.productDetailNum = pd.productDetailNum 
+			and p.productNum = pd.productNum 
+			and pd.productDetailNum = pi.productDetailNum 
+			and u.userNum =#{userNum} 
+			and pi.imagePrimary = 1
+		]]>
+	</select>
+	
+	
+	<!-- 마이페이지 구매 -->
+	<select id="selectPurchaseProduct" parameterType="int" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select u.userNum, 
+					p.productName, 
+					pd.productNum, 
+					pd.productPrice, 
+					pi.imageSavedName, 
+					h.productCount, 
+					r.totalPrice,
+					r.receiptNum,
+        			st.storageSize 
+			from user u, product p, productDetail pd, productImage pi, history h, receipt r, Storage st 
+			where u.userNum = r.userNum 
+			and p.productNum = pd.productNum 
+			and pd.productDetailNum = pi.productDetailNum 
+			and pd.storageNum = st.storageNum 
+			and h.productDetailNum = pd.productDetailNum 
+			and r.receiptNum = h.receiptNum 
+			and u.userNum =#{userNum} 
+			AND r.receiptNum = ( SELECT MAX(receiptNum) 
+			FROM Receipt WHERE userNum = r.userNum )
+			and pi.imagePrimary = 1;
+		]]>
+	</select>
+	
+	
+	<!-- 회원정보수정 -->
+	<update id="userUpdate" parameterType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			update user 
+			set userPw = #{userPw}, 
+				userName = #{userName}, 
+				userHp = #{userHp}, 
+				userAddress = #{userAddress} 
+			where userNum = #{userNum} 
+		]]>
+	</update>
+	
+	
+	<!-- 마이페이지 구매내역 회원 1명 데이터 가져오기 -->
+	<select id="selectPurchase" parameterType="int" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select u.userNum, 
+					u.userName, 
+					u.userId, 
+					r.receiptNum, 
+					r.purchasedDate, 
+					r.totalPrice, 
+					h.productDetailNum, 
+					h.productCount, 
+					pd.productNum, 
+					pd.productPrice, 
+					p.productName, 
+					c.colorName, 
+					pi.imageSavedName,
+					st.storageSize 
+			from user u, receipt r, history h, productDetail pd, product p, color c, productImage pi, Storage st 
+			where u.userNum = r.userNum 
+			and r.receiptNum = h.receiptNum 
+			and h.productDetailNum = pd.productDetailNum 
+			and pd.productNum = p.productNum 
+			and p.productNum = c.productNum 
+			and pd.colorNum = c.colorNum 
+			and pd.productDetailNum = pi.productDetailNum
+			and pd.storageNum = st.storageNum 
+			AND r.receiptNum = ( SELECT MAX(receiptNum) 
+			FROM Receipt WHERE userNum = r.userNum )
+			and pi.imagePrimary = 1
+			and u.userNum =#{userNum} 
+		]]>
+	</select>
+</mapper>
