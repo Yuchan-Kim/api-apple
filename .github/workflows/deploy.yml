@@ -28,12 +28,14 @@ jobs: # 작업을 정의
         run: mvn clean package		# Maven build 명령어: clean package 실행
 
       - name: Build Docker image	# 단계이름 'Build Docker image(도커이미지빌드)' 
-        run: docker build -t clz2024sun/mysite:latest . #도 커이미지빌드 명령어 도커허브/레파지토리:태그
+        run: docker build -t yuchankim/api-apple:latest . #도 커이미지빌드 명령어 도커허브/레파지토리:태그
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin #비밀번호와 유저명을 코드에 보이지않게 처리(깃허브에 세팅한 값)
-      - name: Push Docker image to Docker Hub  # 단계이름 'Log in to Docker Hub(도커허브로그인)' 
-        run: docker push clz2024sun/mysite:latest # 도커이미지빌드 명령어 도커허브/레파지토리:태그
+      - name: Build and push Docker image for multiple platforms
+        run: |
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 -t yuchankim/api-apple:latest --push .
 
          
   SSH:  # 두번째작업: SSH
@@ -49,11 +51,11 @@ jobs: # 작업을 정의
           key: ${{ secrets.SSH_PRIVATE_KEY }}			 #web.pem 비번 (깃허브에 세팅된값)
           script: |
             sudo mkdir -p /home/ec2-user/upload			 
-            sudo docker pull clz2024sun/mysite:latest
+            sudo docker pull yuchankim/api-apple:latest
             sudo docker stop mysite || true
             sudo docker rm mysite || true
             sudo docker run -d \
               --name mysite \
               -p 9000:9000 \
               -v /home/ec2-user/upload:/app/upload \
-              clz2024sun/mysite:latest
+              yuchankim/api-apple:latest
