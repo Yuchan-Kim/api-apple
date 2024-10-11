@@ -72,7 +72,7 @@ public class AdminController2 {
 			return JsonResult.fail("Update failed");
 		} else { // Update success
 			return JsonResult.success(count);
-		}
+		} 
 	}
 
 	@PutMapping("/api/admin/delivery/arrive/{no}")
@@ -83,7 +83,7 @@ public class AdminController2 {
 
 		if (count != 1) { // Update failed
 			return JsonResult.fail("Update failed");
-		} else { // Update success
+		} else { // Update success 
 			return JsonResult.success(count);
 		}
 	}
