@@ -24,8 +24,10 @@
    
    <!-- 조회수 올리기 -->
    <update id="increaseboardViewsCount" parameterType="int">
-      <![CDATA[ 
-         CALL increaseboardViewsCount(#{boardNum}) 
+      <![CDATA[
+       	update Community
+		set boardViews = boardViews+1
+		where boardNum = #{boardNum}
       ]]>
    </update>
    
