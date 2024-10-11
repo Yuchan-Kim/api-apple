@@ -32,7 +32,7 @@ public class MainController {
         return JsonResult.success(proProducts);
     }
 
-    @GetMapping("api/main/products/regular")
+    @GetMapping("api/main/products/regular")    
     public JsonResult getRegularProducts() {
         System.out.println("MainController.getRegularProducts()");
         List<unionVo> regularProducts = mainservice.getRegularProducts();
