@@ -29,7 +29,7 @@ public class MainController {
     public JsonResult getProProducts() {
         System.out.println("MainController.getProProducts()");
         List<unionVo> proProducts = mainservice.getProProducts();
-        return JsonResult.success(proProducts);
+        return JsonResult.success(proProducts); 
     }
 
     @GetMapping("api/main/products/regular")    
