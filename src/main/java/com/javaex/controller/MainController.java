@@ -88,7 +88,7 @@ public class MainController {
             return JsonResult.success(searchResults);
         } catch (Exception e) {
             return JsonResult.fail("커뮤니티 검색 중 오류가 발생했습니다.");
-        }
+        } 
     }
     
     
