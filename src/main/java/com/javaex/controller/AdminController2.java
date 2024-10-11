@@ -20,7 +20,7 @@ import com.javaex.vo.unionVo;
 public class AdminController2 {
 
 	@Autowired
-	private AdminService2 adminService2;
+	private AdminService2 adminService2; 
 
 	// store삭제
 	@PutMapping("/api/admin/store/{no}")
