@@ -18,7 +18,7 @@ public class MainDao {
     
     public List<unionVo> getProProducts() {
         return sqlsession.selectList("main.getProProducts");
-    }
+     
 
     public List<unionVo> getRegularProducts() {
         return sqlsession.selectList("main.getRegularProducts");
