@@ -28,7 +28,7 @@ public class CommunityController {
 		
 		List<CommunityVo> communityList = communityService.exeCommunityList();
 		 System.out.println(communityList);
-		return JsonResult.success(communityList);
+		return JsonResult.success(communityList); 
 	}
 	
 	
