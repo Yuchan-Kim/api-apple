@@ -18,7 +18,7 @@
 				JOIN Storage s ON pd.storageNum = s.storageNum
 				JOIN Display d ON pd.displayNum = d.displayNum
 				LEFT JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum 
-				WHERE p.productName LIKE '%iphone pro%'
+				WHERE p.productName LIKE '%pro%'
 				GROUP BY p.productName, d.displaySize 
 				ORDER BY p.productName desc; 
     
