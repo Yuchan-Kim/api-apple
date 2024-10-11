@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="admin">
+
+	<!-- 시리즈 등록 -->
+    <insert id="seriesInsert" parameterType="com.javaex.vo.unionVo">
+        INSERT INTO Series (seriesName)
+        VALUES (#{seriesName})
+    </insert>
+    
+    <!-- 상품 등록 -->
+    <insert id="productInsert" parameterType="com.javaex.vo.unionVo" useGeneratedKeys="true" keyProperty="productNum">
+        INSERT INTO Product (seriesNum, productName)
+        VALUES (#{seriesNum}, #{productName})
+    </insert>
+    
+    <!-- 본문 이미지 등록 -->
+     <insert id="infoImageInsert" parameterType="com.javaex.vo.unionVo">
+        INSERT INTO infoImage (productNum, infoImageSavedName, infoImagePrimary)
+        VALUES (#{productNum}, #{infoImageSavedName}, #{infoImagePrimary})
+     </insert>
+     
+    <!-- 상품 상세 정보 등록 -->
+    <insert id="detailInsert" parameterType="com.javaex.vo.unionVo" useGeneratedKeys="true" keyProperty="productDetailNum">
+        INSERT INTO ProductDetail (seriesNum, productNum, colorNum, displayNum, storageNum, productPrice)
+        VALUES (#{seriesNum}, #{productNum}, #{colorNum}, #{displayNum}, #{storageNum}, #{productPrice})
+    </insert>
+    
+    <!-- 상세 이미지 등록 -->
+     <insert id="insertDetailImg" parameterType="com.javaex.vo.unionVo">
+        INSERT INTO productImage (productDetailNum, imageSavedName, imagePrimary)
+        VALUES (#{productDetailNum}, #{imageSavedName}, #{imagePrimary})
+     </insert>
+    
+    <!-- 시리즈 가져오기 -->
+	<select id="selectSeriesList" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select seriesNum,
+				   seriesName
+			from Series
+			order by seriesNum desc
+		]]>
+	</select>
+    
+    <!-- 상품명 가져오기 -->
+	<select id="selectProductList" parameterType="int" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select seriesNum,
+				   productNum,
+				   productName
+			from Product
+			where seriesNum = #{seriesNum}
+			order by productNum desc
+		]]>
+	</select>
+	
+	<!-- 색상 등록 -->
+    <insert id="colorInsert" parameterType="com.javaex.vo.unionVo">
+        INSERT INTO Color (productNum, seriesNum, colorName, colorCode)
+        VALUES (#{productNum}, #{seriesNum}, #{colorName}, #{colorCode})
+    </insert>
+    
+    <!-- 디스플레이 등록 -->
+    <insert id="displayInsert" parameterType="com.javaex.vo.unionVo">
+        INSERT INTO Display (productNum, seriesNum, displaySize)
+        VALUES (#{productNum}, #{seriesNum}, #{displaySize})
+    </insert>
+    
+    <!-- 용량 등록 -->
+    <insert id="storageInsert" parameterType="com.javaex.vo.unionVo">
+        INSERT INTO Storage (productNum, seriesNum, storageSize)
+        VALUES (#{productNum}, #{seriesNum}, #{storageSize})
+    </insert>
+    
+    <!-- 색상 가져오기 -->
+	<select id="selectColorList" parameterType="com.javaex.vo.unionVo" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select colorNum,
+				   productNum,
+				   seriesNum,
+				   colorName,
+				   colorCode
+			from Color
+			where seriesNum = #{seriesNum}
+			  and productNum = #{productNum}
+			order by colorNum desc
+		]]>
+	</select>
+
+	<!-- 디스플레이 가져오기 -->
+	<select id="selectDisplayList" parameterType="com.javaex.vo.unionVo" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select displayNum,
+				   productNum,
+				   seriesNum,
+				   displaySize
+			from Display
+			where seriesNum = #{seriesNum}
+			  and productNum = #{productNum}
+			order by displayNum desc
+		]]>
+	</select>
+	
+	<!-- 용량 가져오기 -->
+	<select id="selectStorageList" parameterType="com.javaex.vo.unionVo" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select storageNum,
+				   productNum,
+				   seriesNum,
+				   storageSize
+			from Storage
+			where seriesNum = #{seriesNum}
+			  and productNum = #{productNum}
+			order by storageNum desc
+		]]>
+	</select>
+	
+	<!-- 상품명 가져오기2 -->
+	<select id="selectProductList2" parameterType="int" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select p.productNum,
+				   s.seriesName,
+			       p.productName
+			from Product p
+			inner join Series s on p.seriesNum = s.seriesNum
+			where s.seriesNum = #{seriesNum}
+			order by p.productNum desc
+		]]>
+	</select>
+	
+	<!-- 색상 가져오기2 -->
+	<select id="selectColorList2" parameterType="int" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select c.colorNum,
+				   c.seriesNum,
+				   s.seriesName,
+			       c.productNum,
+			       p.productName,
+			       c.colorName,
+			       c.colorCode
+			from Color c
+			inner join Series s on c.seriesNum = s.seriesNum
+			inner join Product p on c.productNum = p.productNum
+			where s.seriesNum = #{seriesNum}
+			order by colorNum desc
+		]]>
+	</select>
+	
+	<!-- 디스플레이 가져오기2 -->
+	<select id="selectDisplayList2" parameterType="int" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select d.displayNum,
+				   s.seriesName,
+			       p.productName,
+			       d.displaySize
+			from Display d 
+			inner join Series s on d.seriesNum = s.seriesNum
+			inner join Product p on d.productNum = p.productNum
+			where s.seriesNum = #{seriesNum}
+			order by d.displayNum desc
+		]]>
+	</select>
+	
+	<!-- 용량 가져오기2 -->
+	<select id="selectStroageList2" parameterType="int" resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			select stor.storageNum,
+				   ser.seriesName,
+			       p.productName,
+			       stor.storageSize
+			from Storage stor
+			inner join Series ser on stor.seriesNum = ser.seriesNum
+			inner join Product p on stor.productNum = p.productNum
+			where ser.seriesNum = #{seriesNum}
+			order by stor.storageNum desc
+		]]>
+	</select>
+	
+	<!-- 상품 상세정보 가져오기 -->
+	<select id="selectProductDetailList" parameterType="int" resultType="com.javaex.vo.ProductDetailVo">
+		<![CDATA[ 
+			select pd.seriesNum,
+			       pd.productNum,
+			       c.colorNum,
+			       d.displayNum,
+			       stor.storageNum,
+			       pd.productDetailNum,
+			       ser.seriesName,
+			       p.productName,
+			       d.displaySize,
+			       c.colorName,
+			       pd.productPrice,
+			       stor.storageSize,
+			       img.imageSavedName
+			from ProductDetail pd
+			inner join Product p on pd.productNum = p.productNum
+			inner join Series ser on p.seriesNum = ser.seriesNum
+			inner join Color c on pd.colorNum = c.colorNum
+			inner join Display d on pd.displayNum = d.displayNum
+			inner join Storage stor on pd.storageNum = stor.storageNum
+			inner join productImage img on pd.productDetailNum = img.productDetailNum
+			where ser.seriesNum = #{seriesNum}
+            and img.imagePrimary = 1
+			order by pd.productDetailNum desc
+		]]>
+	</select>
+	
+	<!-- Product 테이블에서 seriesNum이 있는지 확인 -->
+	<select id="existsInProduct" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM Product 
+	    WHERE seriesNum = #{seriesNum}
+	</select>
+	
+	<!-- 시리즈 삭제 -->
+	<delete id="deleteSeries" parameterType="int">
+		<![CDATA[     
+			delete from Series
+			where seriesNum = #{seriesNum}
+		]]>
+	</delete>
+	
+	<!-- Color 테이블에서 productNum이 있는지 확인 -->
+	<select id="existsInColor" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM Color 
+	    WHERE productNum = #{productNum}
+	</select>
+	
+	<!-- Display 테이블에서 productNum이 있는지 확인 -->
+	<select id="existsInDisplay" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM Display 
+	    WHERE productNum = #{productNum}
+	</select>
+	
+	<!-- Storage 테이블에서 productNum이 있는지 확인 -->
+	<select id="existsInStorage" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM Storage 
+	    WHERE productNum = #{productNum}
+	</select>
+	
+	<!-- 상품 삭제 -->
+	<delete id="deleteProduct" parameterType="int">
+		<![CDATA[     
+			delete from Product
+			where productNum = #{productNum}
+		]]>
+	</delete>
+	
+	<!-- ProductDetail 테이블에서 colorNum이 있는지 확인 -->
+	<select id="existsInProductDetail" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM ProductDetail 
+	    WHERE colorNum = #{colorNum}
+	</select>
+	
+	<!-- 색상 삭제 -->
+	<delete id="deleteColor" parameterType="int">
+		<![CDATA[     
+			delete from Color
+			where colorNum = #{colorNum}
+		]]>
+	</delete>
+	
+	<!-- ProductDetail 테이블에서 displayNum이 있는지 확인 -->
+	<select id="existsInProductDetailDisplay" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM ProductDetail 
+	    WHERE displayNum = #{displayNum}
+	</select>
+	
+	<!-- 디스플레이 삭제 -->
+	<delete id="deleteDisplay" parameterType="int">
+		<![CDATA[     
+			delete from Display
+			where displayNum = #{displayNum}
+		]]>
+	</delete>
+	
+	<!-- ProductDetail 테이블에서 storageNum이 있는지 확인 -->
+	<select id="existsInProductDetailStorage" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM ProductDetail 
+	    WHERE storageNum = #{storageNum}
+	</select>
+	
+	<!-- 용량 삭제 -->
+	<delete id="deleteStorage" parameterType="int">
+		<![CDATA[     
+			delete from Storage
+			where storageNum = #{storageNum}
+		]]>
+	</delete>
+	
+	<!-- 상품 상세정보 삭제 -->
+	<delete id="deleteProductDetail" parameterType="int">
+		<![CDATA[     
+			delete from ProductDetail
+			where productDetailNum = #{productDetailNum}
+		]]>
+	</delete>
+	
+	<!-- 매장 등록 -->
+    <insert id="stroeInsert" parameterType="com.javaex.vo.unionVo">
+        INSERT INTO Store (storeName, storeAddress, storeNumber, storeImage, storeMapImage)
+        VALUES (#{storeName}, #{storeAddress}, #{storeNumber}, #{storeImage}, #{storeMapImage})
+    </insert>
+    
+ 	<!-- 상품 리스트 모두 가져오기 -->
+    <select id="selectProductListAll" resultType="com.javaex.vo.ProductDetailVo">
+	      <![CDATA[ 
+	         select pd.seriesNum,
+	                pd.productNum,
+	                pd.productDetailNum,
+	                ser.seriesName,
+	                p.productName,
+	                d.displaySize,
+	                c.colorName,
+	                pd.productPrice,
+	                stor.storageSize,
+	                img.imageSavedName
+	         from ProductDetail pd
+	         inner join Product p on pd.productNum = p.productNum
+	         inner join Series ser on p.seriesNum = ser.seriesNum
+	         inner join Color c on pd.colorNum = c.colorNum
+	         inner join Display d on pd.displayNum = d.displayNum
+	         inner join Storage stor on pd.storageNum = stor.storageNum
+	         inner join productImage img on pd.productDetailNum = img.productDetailNum
+	            where img.imagePrimary = 1
+	         order by pd.productDetailNum desc
+	      ]]>
+	   </select>
+	   
+	   <!-- 키워드 검색 -->
+	   <select id="productListByKeyword" parameterType="string" resultType="com.javaex.vo.ProductDetailVo">
+	      <![CDATA[ 
+	            select  pd.seriesNum,
+			            pd.productNum,
+			            pd.productDetailNum,
+			            ser.seriesName,
+			            p.productName,
+			            d.displaySize,
+			            c.colorName,
+			            pd.productPrice,
+			            stor.storageSize,
+			            img.imageSavedName
+			    from ProductDetail pd
+			    inner join Product p on pd.productNum = p.productNum
+			    inner join Series ser on p.seriesNum = ser.seriesNum
+			    inner join Color c on pd.colorNum = c.colorNum
+			    inner join Display d on pd.displayNum = d.displayNum
+			    inner join Storage stor on pd.storageNum = stor.storageNum
+			    inner join productImage img on pd.productDetailNum = img.productDetailNum
+			    where img.imagePrimary = 1
+			    and (p.productName LIKE CONCAT('%', #{keyword}, '%')
+			         OR ser.seriesName LIKE CONCAT('%', #{keyword}, '%')
+			         OR c.colorName LIKE CONCAT('%', #{keyword}, '%')
+			         OR d.displaySize LIKE CONCAT('%', #{keyword}, '%')
+                     OR stor.storageSize LIKE CONCAT('%', #{keyword}, '%'))
+			    order by pd.productDetailNum desc
+	      ]]>
+	   </select>
+	
+	<!-- History 테이블에서 productDetailNum 확인 -->
+	<select id="existsInHistory" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM History 
+	    WHERE productDetailNum = #{productDetailNum}
+	</select>
+	
+	<!-- productImage 테이블에서 productDetailNum으로 이미지 삭제 -->
+	<delete id="deleteProductImage">
+	    DELETE FROM productImage 
+	    WHERE productDetailNum = #{productDetailNum}
+	</delete>
+	
+	<!-- productDetailNum으로 상품 삭제 -->
+	<delete id="deleteProductList">
+	    DELETE FROM ProductDetail 
+	    WHERE productDetailNum = #{productDetailNum}
+	</delete>
+	
+	<!-- 매장 리스트 가져오기 -->
+	<select id="storeSelectList" resultType="com.javaex.vo.StoreVo">
+		<![CDATA[ 
+			select storeNum, 
+				   storeName, 
+				   storeAddress, 
+				   storeNumber, 
+				   storeImage, 
+				   storeStatus 
+			from Store 
+			where storeStatus != '폐업'
+			and storeNum != 999
+		]]>
+	</select>
+	
+	<!-- 매장 1개 정보 가져오기 -->
+	<select id="storeSelectOne" parameterType="int" resultType="com.javaex.vo.StoreVo">
+		<![CDATA[   
+			select storeNum,
+				   storeName,
+			       storeAddress,
+			       storeNumber,
+			       storeImage,
+			       storeMapImage
+			from Store
+			where storeNum = #{storeNum}
+		]]>
+	</select>
+	
+	<!-- 매장 수정하기 -->
+	<update id="updateStore" parameterType="com.javaex.vo.StoreVo">
+		<![CDATA[
+		 	update Store
+			set storeName = #{storeName},
+				storeAddress = #{storeAddress},
+			    storeNumber = #{storeNumber},
+			    storeImage = #{storeImage},
+			    storeMapImage = #{storeMapImage}
+			where storeNum = #{storeNum}
+	]]>
+	</update>
+	
+	<!-- 유저 리스트 가져오기 -->
+	   <select id="userSelectList" resultType="com.javaex.vo.unionVo">
+       <![CDATA[
+           select  userNum, 
+                   userId,
+                   userPw,
+                   userName,
+                   userHp,
+                   userAddress
+           from User
+           where userStatus = '회원'  
+       ]]>
+   </select>
+   
+   <!-- 회원 1개 정보 가져오기 -->
+	<select id="userSelectOne" parameterType="int" resultType="com.javaex.vo.unionVo">
+		<![CDATA[   
+			select userNum,
+				   userName,
+				   userId,
+				   userPw,
+			       userHp,
+			       userAddress
+			from User
+			where userNum = #{userNum}
+		]]>
+	</select>
+	
+	<!-- 회원정보 수정하기 -->
+	<update id="updateUser" parameterType="com.javaex.vo.unionVo">
+		<![CDATA[
+		 	update User
+			set userName = #{userName},
+				userId = #{userId},
+			    userPw = #{userPw},
+			    userHp = #{userHp},
+			    userAddress = #{userAddress}
+			where userNum = #{userNum}
+	]]>
+	</update>
+	
+	<!-- 상품 상세정보 1개 가져오기 -->
+	<select id="selectOneProductDetail" resultType="com.javaex.vo.ProductDetailVo">
+		<![CDATA[ 
+			select pd.seriesNum,
+			       pd.productNum,
+			       c.colorNum,
+			       d.displayNum,
+			       stor.storageNum,
+			       pd.productDetailNum,
+			       ser.seriesName,
+			       p.productName,
+			       d.displaySize,
+			       c.colorName,
+			       c.colorCode,
+			       pd.productPrice,
+			       stor.storageSize
+			from ProductDetail pd
+			inner join Product p on pd.productNum = p.productNum
+			inner join Series ser on p.seriesNum = ser.seriesNum
+			inner join Color c on pd.colorNum = c.colorNum
+			inner join Display d on pd.displayNum = d.displayNum
+			inner join Storage stor on pd.storageNum = stor.storageNum
+			where pd.productDetailNum = #{productDetailNum}
+		]]>
+	</select>
+	
+	<!-- 선택한 상품의 상세 이미지 가져오기 -->
+	<select id="productDetailImg" parameterType="int" resultType="com.javaex.vo.ProductDetailVo">
+		<![CDATA[ 
+			select pd.seriesNum,
+			       pd.productNum,
+			       c.colorNum,
+			       d.displayNum,
+			       stor.storageNum,
+			       pd.productDetailNum,
+			       ser.seriesName,
+			       p.productName,
+			       d.displaySize,
+			       c.colorName,
+                   c.colorCode,
+			       pd.productPrice,
+			       stor.storageSize,
+			       img.imageSavedName,
+			       img.imagePrimary
+			from ProductDetail pd
+			inner join Product p on pd.productNum = p.productNum
+			inner join Series ser on p.seriesNum = ser.seriesNum
+			inner join Color c on pd.colorNum = c.colorNum
+			inner join Display d on pd.displayNum = d.displayNum
+			inner join Storage stor on pd.storageNum = stor.storageNum
+			inner join productImage img on pd.productDetailNum = img.productDetailNum
+			where pd.productDetailNum = #{productDetailNum}
+		]]>
+	</select>
+	
+	<!-- 상품상세 정보 수정 -->
+	<update id="updateProductDetail" parameterType="com.javaex.vo.StoreVo">
+	       <![CDATA[
+	       UPDATE ProductDetail
+			SET seriesName = #{seriesNum},
+			    productName = #{productNum},
+			    colorName = #{colorNum},
+			    colorCode = #{colorCode},
+			    displaySize = #{displayNum},
+			    storageSize = #{storageNum},
+			    productPrice = #{productPrice}
+			WHERE productDetailNum = #{productDetailNum}
+	       ]]>
+	</update>
+	
+	<!-- 기존 상품 이미지 수정 -->
+	<update id="updateProductImage" parameterType="com.javaex.vo.StoreVo">
+	       <![CDATA[
+	       		UPDATE productImage
+				SET imageSavedName = #{savedFileName}
+				WHERE imagePrimary = #{imagePrimary}
+				AND productDetailNum = #{productDetailNum}
+	       ]]>
+	</update>
+	
+	<!-- 상품디테일 이미지 추가 -->
+	<update id="insertProductImage" parameterType="com.javaex.vo.StoreVo">
+	       <![CDATA[
+	       		INSERT INTO productImage (productDetailNum, imageSavedName, imagePrimary)
+				VALUES (#{productDetailNum}, #{savedFileName}, #{imagePrimary})
+	       ]]>
+	</update>
+	
+	
+	
+	
+	
+	<!-- ##############현오씨 파트############## -->
+	<update id="storeDelete" parameterType="com.javaex.vo.StoreVo">
+	       <![CDATA[
+	       UPDATE Store
+	       SET storeStatus = '폐업'
+	       WHERE storeNum = #{storeNum}
+	       ]]>
+	</update>
+	   
+	<update id="userDelete" parameterType="com.javaex.vo.unionVo">
+	      <![CDATA[
+	       UPDATE User
+	       SET userStatus = '탈퇴'
+	       WHERE userNum = #{userNum}
+	       ]]>
+	</update>
+	   
+	<select id="deliverySelectList" resultType="com.javaex.vo.unionVo">
+	       <![CDATA[
+	      SELECT 
+	          Receipt.receiptNum,
+	          History.historyNum,
+	          History.productDetailNum,
+	          History.productCount,
+	          ProductDetail.seriesNum,
+	          ProductDetail.productNum,
+	          Product.productName,    -- Added productName from Product table
+	          Color.colorName,
+	          Display.displaySize,
+	          Storage.storageSize,
+	          ProductDetail.productPrice,
+	          Store.storeName,
+	          Store.storeNumber,
+	          `User`.userId,
+	          `User`.userName,         -- userName from User table
+	          `User`.userAddress,      -- userAddress from User table
+	          `User`.userHp,           -- userHp from User table
+	          Receipt.purchasedDate,
+	          Receipt.shippingAddress,
+	          Receipt.shippingStatus,
+	          Receipt.totalPrice,
+	          MAX(productImage.imageSavedName) AS imageSavedName  -- Choose the primary or latest image
+	      FROM Receipt
+	      JOIN History ON Receipt.receiptNum = History.receiptNum
+	      JOIN ProductDetail ON History.productDetailNum = ProductDetail.productDetailNum
+	      JOIN Product ON ProductDetail.productNum = Product.productNum
+	      JOIN Color ON ProductDetail.colorNum = Color.colorNum 
+	      AND ProductDetail.seriesNum = Color.seriesNum
+	      JOIN Display ON ProductDetail.displayNum = Display.displayNum 
+	      AND ProductDetail.seriesNum = Display.seriesNum
+	      JOIN Storage ON ProductDetail.storageNum = Storage.storageNum 
+	      AND ProductDetail.seriesNum = Storage.seriesNum
+	      JOIN Store ON Receipt.storeNum = Store.storeNum
+	      JOIN User ON Receipt.userNum = `User`.userNum
+	      LEFT JOIN productImage ON ProductDetail.productDetailNum = productImage.productDetailNum  -- Use LEFT JOIN to allow products without images
+	      WHERE Receipt.shippingStatus != '배송 완료'
+	      GROUP BY 
+	          Receipt.receiptNum,
+	          History.historyNum,
+	          History.productDetailNum,
+	          ProductDetail.seriesNum,
+	          ProductDetail.productNum,
+	          Product.productName,
+	          Color.colorName,
+	          Display.displaySize,
+	          Storage.storageSize,
+	          ProductDetail.productPrice,
+	          Store.storeName,
+	          Store.storeNumber,
+	          User.userId,
+	          User.userName,
+	          User.userAddress,
+	          User.userHp,
+	          Receipt.purchasedDate,
+	          Receipt.shippingAddress,
+	          Receipt.shippingStatus,
+	          Receipt.totalPrice
+	       ]]>
+	   </select>
+	
+	   <update id="productSend" parameterType="com.javaex.vo.unionVo">
+	       <![CDATA[
+	       UPDATE Receipt
+	       SET shippingStatus = '배송 중'
+	       WHERE receiptNum = #{receiptNum}
+	       ]]>
+	   </update>
+	   
+	   <update id="productArrived" parameterType="com.javaex.vo.unionVo">
+	       <![CDATA[
+	       UPDATE Receipt
+	       SET shippingStatus = '배송 완료'
+	       WHERE receiptNum = #{receiptNum}
+	       ]]>
+	   </update>
+	   
+	   <select id="historySelectList" parameterType="String" resultType="com.javaex.vo.unionVo">
+	       <![CDATA[
+	       SELECT 
+	          Receipt.receiptNum,
+	          History.historyNum,
+	          History.productDetailNum,
+	          History.productCount,
+	          ProductDetail.seriesNum,
+	          ProductDetail.productNum,
+	          Product.productName,    -- Added productName from Product table
+	          Color.colorName,
+	          Display.displaySize,
+	          Storage.storageSize,
+	          ProductDetail.productPrice,
+	          Store.storeName,
+	          Store.storeNumber,
+	          User.userId,
+	          User.userName,         -- userName from User table
+	          User.userAddress,      -- userAddress from User table
+	          User.userHp,           -- userHp from User table
+	          Receipt.purchasedDate,
+	          Receipt.shippingAddress,
+	          Receipt.shippingStatus,
+	          Receipt.totalPrice,
+	          MAX(productImage.imageSavedName) AS imageSavedName  -- Choose the primary or latest image
+	      FROM Receipt
+	      JOIN History ON Receipt.receiptNum = History.receiptNum
+	      JOIN ProductDetail ON History.productDetailNum = ProductDetail.productDetailNum
+	      JOIN Product ON ProductDetail.productNum = Product.productNum
+	      JOIN Color ON ProductDetail.colorNum = Color.colorNum 
+	      AND ProductDetail.seriesNum = Color.seriesNum
+	      JOIN Display ON ProductDetail.displayNum = Display.displayNum 
+	      AND ProductDetail.seriesNum = Display.seriesNum
+	      JOIN Storage ON ProductDetail.storageNum = Storage.storageNum 
+		  AND ProductDetail.seriesNum = Storage.seriesNum
+	      JOIN Store ON Receipt.storeNum = Store.storeNum
+	      JOIN User ON Receipt.userNum = User.userNum
+	      LEFT JOIN productImage ON ProductDetail.productDetailNum = productImage.productDetailNum  -- Use LEFT JOIN to allow products without images
+	      WHERE Receipt.shippingStatus = '배송 완료'
+	      GROUP BY 
+	          Receipt.receiptNum,
+	          History.historyNum,
+	          History.productDetailNum,
+	          ProductDetail.seriesNum,
+	          ProductDetail.productNum,
+	          Product.productName,
+	          Color.colorName,
+	          Display.displaySize,
+	          Storage.storageSize,
+	          ProductDetail.productPrice,
+	          Store.storeName,
+	          Store.storeNumber,
+	          User.userId,
+	          User.userName,
+	          User.userAddress,
+	          User.userHp,
+	          Receipt.purchasedDate,
+	          Receipt.shippingAddress,
+	          Receipt.shippingStatus,
+	          Receipt.totalPrice
+	       ]]>
+   </select>
+  	
+  	      <select id="productSelectList" resultType="com.javaex.vo.unionVo">
+          <![CDATA[
+             select pd.seriesNum,
+                pd.productNum,
+                pd.productDetailNum,
+                ser.seriesName,
+                p.productName,
+                d.displaySize,
+                c.colorName,
+                pd.productPrice,
+                stor.storageSize, 
+                img.imageSavedName
+         from productDetail pd
+         inner join product p on pd.productNum = p.productNum
+         inner join series ser on p.seriesNum = ser.seriesNum
+         inner join color c on pd.colorNum = c.colorNum
+         inner join display d on pd.displayNum = d.displayNum
+         inner join storage stor on pd.storageNum = stor.storageNum
+         inner join productImage img on pd.productDetailNum = img.productDetailNum
+         order by pd.productDetailNum
+          ]]>
+      </select>
+ 
+	
+</mapper>

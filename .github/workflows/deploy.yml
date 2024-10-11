@@ -1,0 +1,61 @@
+name: Deploy mysite App
+
+
+#on:
+#  workflow_dispatch:
+#    inputs:
+
+
+on: 
+  push: 
+    branches: 
+      - master # 마스터 브런치로 깃허브에 push되었을때
+
+jobs: # 작업을 정의
+  build-and-deploy:	# 첫번째작업: 빌드 및 배포
+    runs-on: ubuntu-latest			# 가상의 최신우분투(리눅스종류임) 컴퓨터가 만들어짐
+    steps:							# step은 job안쪽에 개별단계를 의미
+      - name: Checkout code			# 단계이름 'Checkout code(소스가져오기)' 
+        uses: actions/checkout@v3	# 깃허브에서 제공하는 checkout@v3 기능 사용하여 소스가져오기
+
+      - name: Set up JDK 17			# 단계이름 'Set up JDK 17(jdk17설치)'
+        uses: actions/setup-java@v2	# 깃허브에서 제공하는 setup-java@v2 기능 사용하여 JDK설치
+        with:
+          java-version: '17'		# 자바버전 17
+          distribution: 'temurin'	# 'temurin' OpenJDK의 배포판 이름
+
+      - name: Build with Maven		# 단계이름 'Build with Maven(메이븐 빌드)' 
+        run: mvn clean package		# Maven build 명령어: clean package 실행
+
+      - name: Build Docker image	# 단계이름 'Build Docker image(도커이미지빌드)' 
+        run: docker build -t yuchankim/api-apple:latest . #도 커이미지빌드 명령어 도커허브/레파지토리:태그
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin #비밀번호와 유저명을 코드에 보이지않게 처리(깃허브에 세팅한 값)
+      - name: Build and push Docker image for multiple platforms
+        run: |
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 -t yuchankim/api-apple:latest --push .
+
+         
+  SSH:  # 두번째작업: SSH
+    needs: build-and-deploy # 첫번째작업인 build-and-deploy 작업이 완료된 후 실행
+    runs-on: ubuntu-latest  # 가상의 최신우분투(리눅스종류임) 컴퓨터가 만들어짐
+    steps:  # step은 job안쪽에 개별단계를 의미
+      - uses: actions/checkout@v3 # 깃허브에서 제공하는 checkout@v3 기능 사용하여 소스가져오기
+      - name: ssh to ec2	# 단계이름 'ssh to ec2(ec2에 ssh로 접근 mobaXterm에서 했던작업
+        uses: appleboy/ssh-action@master # 깃허브에서 제공하는 ssh-action@master 기능 
+        with:
+          host: ${{ secrets.EC2_HOST }}					 #ec2서버의 ip (깃허브에 세팅된값)
+          username: ${{ secrets.EC2_USERNAME }}			 #ec2서버의 계정명 (깃허브에 세팅된값)
+          key: ${{ secrets.SSH_PRIVATE_KEY }}			 #web.pem 비번 (깃허브에 세팅된값)
+          script: |
+            sudo mkdir -p /home/ec2-user/upload			 
+            sudo docker pull yuchankim/api-apple:latest
+            sudo docker stop api-apple || true
+            sudo docker rm api-apple || true
+            sudo docker run -d \
+              --name api-apple \
+              -p 9000:9000 \
+              -v /home/ec2-user/upload:/app/upload \
+              yuchankim/api-apple:latest
