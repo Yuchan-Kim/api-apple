@@ -22,7 +22,7 @@
 	        WHERE p.productName LIKE '%pro%'
 	        AND sr.seriesName != '악세사리'
 	        GROUP BY p.productName, d.displaySize 
-	        ORDER BY p.productName DESC;
+	        ORDER BY p.productName DESC; 
 	    ]]>
 	</select>
 
