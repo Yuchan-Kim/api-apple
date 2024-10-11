@@ -18,7 +18,7 @@
 				JOIN Storage s ON pd.storageNum = s.storageNum
 				JOIN Display d ON pd.displayNum = d.displayNum
 				LEFT JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum 
-				WHERE p.productName LIKE '%pro%'
+				WHERE p.productName LIKE '%iphone pro%'
 				GROUP BY p.productName, d.displaySize 
 				ORDER BY p.productName desc; 
     
@@ -42,7 +42,7 @@
 				JOIN Storage s ON pd.storageNum = s.storageNum
 				JOIN Display d ON pd.displayNum = d.displayNum
 				LEFT JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum 
-				WHERE p.productName not LIKE '%pro%' and p.productName not LIKE '%se%' 
+				WHERE p.productName not LIKE '%iphone pro%' and p.productName not LIKE '%iphone se%' 
 				GROUP BY p.productName, d.displaySize 
 				ORDER BY p.productName desc; 
         ]]>
@@ -63,7 +63,7 @@
 				JOIN Storage s ON pd.storageNum = s.storageNum
 				JOIN Display d ON pd.displayNum = d.displayNum
 				LEFT JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum 
-				WHERE p.productName LIKE '%se%'
+				WHERE p.productName LIKE '%iphone se%'
 				GROUP BY p.productName, d.displaySize 
 				ORDER BY p.productName desc; 
     
