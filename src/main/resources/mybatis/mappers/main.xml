@@ -26,7 +26,20 @@
 	    ]]>
 	</select>
 
-    
+    <select id="getImageWithPrimaryTwo" parameterType="int" resultType="com.javaex.vo.unionVo">
+    <![CDATA[
+        SELECT 
+            pi.imageSavedName, 
+            pi.imagePrimary
+        FROM 
+            productImage pi
+        WHERE 
+            pi.productDetailNum = #{productDetailNum}
+            AND pi.imagePrimary = 2
+        ORDER BY 
+            pi.imagePrimary ASC
+    ]]>
+</select>
     <!-- 2. 일반 제품 목록 -->
     <select id="getRegularProducts" resultType="com.javaex.vo.unionVo">
 	    <![CDATA[
@@ -198,6 +211,7 @@
 			WHERE 
 			    pi.productDetailNum = #{productDetailNum}
 			    AND pi.imagePrimary != 1  -- imagePrimary가 1인 것 제외
+			    AND pi.imagePrimary != 2
 			ORDER BY 
 			    pi.imagePrimary ASC,  -- imagePrimary 값이 낮은 것부터 정렬
 			    pi.imageNum ASC; 

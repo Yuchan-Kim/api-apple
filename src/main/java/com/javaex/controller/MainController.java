@@ -93,7 +93,12 @@ public class MainController {
     
     
     
-    
+    @GetMapping("api/product/{productDetailNum}/primaryImage2")
+    public JsonResult getImageWithPrimaryTwo(@PathVariable int productDetailNum) {
+        System.out.println("MainController.getImageWithPrimaryTwo()");
+        List<unionVo> images = mainservice.getImageWithPrimaryTwo(productDetailNum);
+        return JsonResult.success(images);
+    }
     @GetMapping("api/product/{productDetailNum}/info")
     public JsonResult getProductBasicInfo(@PathVariable int productDetailNum) {
         System.out.println("MainController.getProductBasicInfo()");

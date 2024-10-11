@@ -46,7 +46,10 @@ public class MainService {
         return maindao.searchCommunities(keyword);
     }
     
-    
+    public List<unionVo> getImageWithPrimaryTwo(int productDetailNum) {
+        System.out.println("MainService.getImageWithPrimaryTwo()");
+        return maindao.getImageWithPrimaryTwo(productDetailNum);
+    }
     
     
     

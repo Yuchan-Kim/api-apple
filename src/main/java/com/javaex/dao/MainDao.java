@@ -29,7 +29,10 @@ public class MainDao {
     }
    
     
-    
+    public List<unionVo> getImageWithPrimaryTwo(int productDetailNum) {
+        System.out.println("MainDao.getImageWithPrimaryTwo()");
+        return sqlsession.selectList("main.getImageWithPrimaryTwo", productDetailNum);
+    }
     
     
     
