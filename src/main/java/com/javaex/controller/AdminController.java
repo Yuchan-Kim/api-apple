@@ -23,9 +23,9 @@ import com.javaex.vo.unionVo;
 @RestController
 public class AdminController {
 
-	@Autowired 
+	@Autowired
 	private AdminService adminService;
- 
+
 	/* 시리즈 등록 */
 	@PostMapping("/api/add/series")
 	public JsonResult addSeries(@RequestBody unionVo unionVo) {

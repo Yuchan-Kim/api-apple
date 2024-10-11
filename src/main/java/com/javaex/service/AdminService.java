@@ -40,7 +40,8 @@ public class AdminService {
 		String saveDir;
 		String osName = System.getProperty("os.name").toLowerCase();
 		if (osName.contains("mac")) {
-			saveDir = "/Users/yuchan/Desktop";
+			saveDir = "/app/upload";
+			// saveDir = "/Users/yuchan/Desktop";
 		} else {
 			saveDir = "C:\\javaStudy\\upload";
 		}

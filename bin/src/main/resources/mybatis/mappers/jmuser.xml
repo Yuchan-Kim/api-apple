@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="jmuser">
+
+	
+	<!--유저 주소 가져오기-->
+	<select id="getUserAddressByUserNum" resultType="com.javaex.vo.unionVo"
+		parameterType="int">
+		<![CDATA[ 
+			SELECT userAddress
+			FROM User
+			WHERE userNum = #{userNum};
+		]]>
+	</select>
+
+
+	<!--유저 넘버로 카트전부 가져오기-->
+	<select id="cartList" parameterType="com.javaex.vo.unionVo"
+		resultType="com.javaex.vo.unionVo">
+    	<![CDATA[ 
+			SELECT 
+			    sc.cartNum,
+			    pd.productDetailNum,
+			    p.productName,  -- 프로덕트 이름
+			    s.seriesName,   -- 시리즈 이름 추가
+			    st.storageSize, 
+			    c.colorName, 
+			    sc.count,
+			    pd.productPrice,
+			    (
+			        SELECT pi.imageSavedName 
+			        FROM productImage pi 
+			        WHERE pi.productDetailNum = pd.productDetailNum 
+			        ORDER BY pi.imageNum ASC 
+			        LIMIT 1
+				    ) AS imageSavedName
+			FROM 
+			    ShoppingCart sc
+			JOIN 
+			    ProductDetail pd ON sc.productDetailNum = pd.productDetailNum
+			JOIN 
+			    Product p ON pd.productNum = p.productNum  -- Product 테이블에서 productName을 가져옴
+			JOIN 
+			    Series s ON p.seriesNum = s.seriesNum      -- Series 테이블에서 seriesName을 가져옴
+			JOIN 
+			    Storage st ON pd.storageNum = st.storageNum
+			JOIN 
+			    Color c ON pd.colorNum = c.colorNum
+			WHERE 
+			    sc.userNum = #{userNum}  -- 해당 userNum으로 조회
+    	]]>
+    </select>
+
+	<!--카트 상품 삭제-->
+	<delete id="deleteOne">
+    	<![CDATA[ 
+    		DELETE FROM ShoppingCart
+			WHERE cartNum = #{cartNum}
+    	]]>
+    </delete>
+
+	<!--카트 전체상품 삭제-->
+	<delete id="deleteAll" parameterType="com.javaex.vo.unionVo">
+    	<![CDATA[ 
+    		DELETE FROM ShoppingCart
+			WHERE userNum = #{userNum}
+    	]]>
+    </delete>
+
+	<!--수량 변경-->
+	<update id="updateCartCount">
+		<![CDATA[ 
+			UPDATE ShoppingCart
+			SET count = #{count}
+			WHERE cartNum = #{cartNum}
+		]]>
+	</update>
+	
+	<!--관심상품 전체 삭제-->
+	<delete id="wishDeleteAll" parameterType="com.javaex.vo.unionVo">
+    	<![CDATA[ 
+    		DELETE FROM likedProduct
+			WHERE userNum = #{userNum}
+    	]]>
+    </delete>
+
+
+
+
+	<!-- 중복제품 확인 -->
+	<select id="checkCartItemExists" parameterType="com.javaex.vo.unionVo"
+		resultType="int">
+		<![CDATA[
+			SELECT count
+			FROM ShoppingCart
+			WHERE productDetailNum = #{productDetailNum}
+			AND userNum = #{userNum}
+		]]>
+	</select>
+
+	<!-- Step 2: 있으면 업데이트 -->
+	<update id="updateCartItemCount" parameterType="com.javaex.vo.unionVo">
+		<![CDATA[
+			UPDATE ShoppingCart
+			SET count = count + 1
+			WHERE productDetailNum = #{productDetailNum}
+			AND userNum = #{userNum}
+		]]>
+	</update>
+
+	<!-- Step 3: 없으면 삽입 -->
+	<insert id="insertCartItem" parameterType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			INSERT INTO ShoppingCart (cartNum, productDetailNum, userNum, count)
+			VALUES (null, #{productDetailNum}, #{userNum}, 1)
+		]]>
+	</insert>
+	
+	
+
+	<!--악세서리 리스트 3개만 뿌리기-->
+	<select id="acceList" parameterType="com.javaex.vo.unionVo"
+		resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			SELECT 
+				pd.productDetailNum,
+			    p.productNum,
+			    p.productName,
+			    pd.productPrice,
+			    (
+			        SELECT pi.imageSavedName 
+			        FROM productImage pi 
+			        WHERE pi.productDetailNum = pd.productDetailNum 
+			        ORDER BY pi.imageNum ASC 
+			        LIMIT 1
+			    ) AS imageSavedName
+			FROM 
+		    Product p
+			JOIN 
+			    ProductDetail pd ON p.productNum = pd.productNum
+			JOIN 
+			    Series s ON p.seriesNum = s.seriesNum 
+			WHERE 
+			    s.seriesName = '악세사리' 
+			ORDER BY 
+			    pd.productDetailNum DESC 
+			LIMIT 3
+		]]>
+	</select>
+
+	<!--스토어 리스트-->
+	<select id="storeList" parameterType="com.javaex.vo.unionVo"
+		resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			SELECT 
+				`storeNum`,
+				`storeName`,
+				`storeAddress`, 
+				`storeNumber`,  
+				`storeMapImage`
+			FROM Store
+			WHERE 
+			`storeNum` != 999
+		]]>
+	</select>
+
+	<!--배송 인서트-->
+	<insert id="deliveryInsert" parameterType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			INSERT INTO Receipt (storeNum, userNum, purchasedDate, shippingAddress, shippingStatus, totalPrice)
+			VALUES (
+			    999,      	         -- storeNum: 선택된 매장 번호
+			    #{userNum},       	 -- userNum: 사용자의 번호
+			    NOW(),           	 -- purchasedDate: 현재 시간
+			    #{userAddress},   	 -- shippingAddress: 유저의 주소
+			    #{shippingStatus},   -- shippingStatus: 배송 상태
+			    #{totalPrice}        -- totalPrice: 총 결제 금액
+			);
+		]]>
+	</insert>
+
+	<!--픽업 인서트-->
+	<insert id="pickupInsert" parameterType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			INSERT INTO Receipt (storeNum, userNum, purchasedDate, shippingAddress, shippingStatus, totalPrice)
+			VALUES (
+			    #{storeNum},      	 -- storeNum: 선택된 매장 번호
+			    #{userNum},       	 -- userNum: 사용자의 번호 
+			    NOW(),           	 -- purchasedDate: 현재 시간
+			    #{shippingAddress},  -- shippingAddress: 스토어의 주소
+			    #{shippingStatus},   -- shippingStatus: 배송 상태
+			    #{totalPrice}        -- totalPrice: 총 결제 금액
+			);
+		]]>
+	</insert>
+	
+	<!--히스토리에 인서트할 유저 장바구니 정보-->
+	<select id="getCartItemsByUser" parameterType="int"
+		resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			SELECT
+			sc.productDetailNum,
+			sc.count AS productCount
+			FROM
+			ShoppingCart sc
+			WHERE
+			sc.userNum = #{userNum}
+		]]>
+	</select>
+
+
+	<!--최신 영수증 번호-->
+	<select id="getLastReceiptNum" parameterType="int" resultType="int">
+		<![CDATA[ 
+			SELECT receiptNum
+			FROM Receipt
+			WHERE userNum = #{userNum}
+			ORDER BY purchasedDate DESC
+			LIMIT 1
+		]]>
+	</select>
+
+
+	<!--히스토리 인서트-->
+	<insert id="insertHistory" parameterType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			INSERT INTO History (receiptNum, productDetailNum, productCount)
+			VALUES (#{receiptNum}, #{productDetailNum}, #{productCount})
+		]]>
+	</insert>
+
+
+	<!-- 결제 정보 가져오기 -->
+	<select id="receiptList" parameterType="com.javaex.vo.unionVo"
+		resultType="com.javaex.vo.unionVo">
+		<![CDATA[ 
+			SELECT h.historyNum, r.shippingStatus, h.productCount, h.productDetailNum, 
+			       pd.productPrice, p.productName, s.seriesName, 
+			       c.colorName, d.displaySize, st.storageSize, 
+			       r.receiptNum, DATE_FORMAT(r.purchasedDate, '%Y-%m-%d') AS purchasedDate, r.shippingAddress, r.totalPrice,
+			       store.storeName, store.storeAddress, store.storeNumber, store.storeMapImage,
+			       pi.imageSavedName AS productImage,
+			       u.userAddress -- 유저 주소 추가
+			FROM History h
+			JOIN ProductDetail pd ON h.productDetailNum = pd.productDetailNum
+			JOIN Product p ON pd.productNum = p.productNum
+			JOIN Series s ON pd.seriesNum = s.seriesNum
+			JOIN Color c ON pd.colorNum = c.colorNum
+			JOIN Display d ON pd.displayNum = d.displayNum
+			JOIN Storage st ON pd.storageNum = st.storageNum
+			JOIN Receipt r ON h.receiptNum = r.receiptNum
+			LEFT JOIN Store store ON r.storeNum = store.storeNum  -- 스토어 정보 조인
+			LEFT JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum AND pi.imagePrimary = 1  -- 주 이미지(대표 이미지)만 선택
+			JOIN User u ON r.userNum = u.userNum  -- 유저 정보 조인
+			WHERE r.userNum = #{userNum}
+			AND r.receiptNum = (
+			    SELECT MAX(receiptNum) 
+			    FROM Receipt 
+			    WHERE userNum = r.userNum
+			);
+
+		]]>
+	</select>
+
+
+</mapper>

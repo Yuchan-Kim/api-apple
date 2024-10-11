@@ -35,7 +35,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 			
 		}else {
-			saveDir = "/home/ec2-user/";
+			saveDir = "/app/upload/";
+			//saveDir = "/home/ec2-user/";
 			registry.addResourceHandler("/upload/**")
 			.addResourceLocations("file:" + saveDir);
 			

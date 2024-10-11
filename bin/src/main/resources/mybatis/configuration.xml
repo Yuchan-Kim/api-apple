@@ -5,8 +5,14 @@
 
 <configuration>
     <mappers>
-    	<mapper resource="mybatis/mappers/user.xml" />
-    	    	<mapper resource="mybatis/mappers/main.xml" />
-    	
+
+    	<mapper resource="mybatis/mappers/jmuser.xml" />
+	<mapper resource="mybatis/mappers/main.xml" />
+		<mapper resource="mybatis/mappers/admin.xml" />
+				<mapper resource="mybatis/mappers/community.xml" />
+								<mapper resource="mybatis/mappers/user.xml" />
+				
+		
+	
     </mappers>
 </configuration>

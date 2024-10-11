@@ -1,78 +1,463 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-    
-    <mapper namespace="main">
-    	<select id="getProProducts" resultType="com.javaex.vo.unionVo">
-		    <![CDATA[
-		        SELECT p.productNum, p.productName, pd.productPrice, p.mainImages
-		        FROM Product p
-		        JOIN ProductDetail pd ON p.productNum = pd.productNum
-		        WHERE p.productName LIKE '%Pro%'
-		        OR p.productName LIKE '%Pro Max%';
-		    ]]>
-		</select>
-		
-		<select id="getRegularProducts" resultType="com.javaex.vo.unionVo">
-		    <![CDATA[
-		        SELECT p.productNum, p.productName, pd.productPrice, p.mainImages
-		        FROM Product p
-		        JOIN ProductDetail pd ON p.productNum = pd.productNum
-		        WHERE p.productName NOT LIKE '%Pro%' 
-		        AND p.productName NOT LIKE '%Pro Max%';
-		    ]]>
-		</select>
-		
-		<select id="getSEModels" resultType="com.javaex.vo.unionVo">
-		    <![CDATA[
-		        SELECT p.productNum, p.productName, pd.productPrice, p.mainImages
-		        FROM Product p
-		        JOIN ProductDetail pd ON p.productNum = pd.productNum
-		        WHERE p.productName LIKE '%se%';
-		    ]]>
-		</select>
 
-    	
-    	<select id="searchProducts" parameterType="String" resultType="com.javaex.vo.unionVo">
-		    <![CDATA[
-		        SELECT 
-		            p.productNum, 
-		            p.productName, 
-		            pd.productPrice, 
-		            p.mainImages 
-		        FROM Product p
-		        JOIN ProductDetail pd ON p.productNum = pd.productNum
-		        WHERE p.productName LIKE #{keyword}
-		    ]]>
-		</select>
+<mapper namespace="main">
+    <!-- 1. 프로 제품 목록 -->
+    <select id="getProProducts" resultType="com.javaex.vo.unionVo">
+        <![CDATA[
+               SELECT MIN(pd.productDetailNum) AS productDetailNum, 
+				       p.productName, 
+				       MIN(pd.productPrice) AS productPrice, 
+				       MIN(c.colorCode) AS colorCode, 
+				       d.displaySize, 
+				       MIN(pi.imageSavedName) AS imageSavedName 
+				FROM ProductDetail pd
+				JOIN Product p ON pd.productNum = p.productNum
+				JOIN Color c ON pd.colorNum = c.colorNum
+				JOIN Storage s ON pd.storageNum = s.storageNum
+				JOIN Display d ON pd.displayNum = d.displayNum
+				LEFT JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum 
+				WHERE p.productName LIKE '%pro%'
+				GROUP BY p.productName, d.displaySize 
+				ORDER BY p.productName desc; 
+    
 
-		<select id="searchStores" parameterType="String" resultType="com.javaex.vo.unionVo">
-		    <![CDATA[
-		        SELECT 
-		            storeNum, 
-		            storeName, 
-		            storeAddress, 
-		            storeImage 
-		        FROM Store
-		        WHERE storeName LIKE #{keyword} OR storeAddress LIKE #{keyword}
-		    ]]>
-		</select>
 
-		<select id="searchCommunities" parameterType="String" resultType="com.javaex.vo.unionVo">
-		    <![CDATA[
-		        SELECT 
-		            boardNum, 
-		            boardTitle, 
-		            boardContent, 
-		            boardViews, 
-		            boardDate 
-		        FROM Community
-		        WHERE boardTitle LIKE #{keyword} OR boardContent LIKE #{keyword}
+        ]]>
+    </select>
+    
+    <!-- 2. 일반 제품 목록 -->
+    <select id="getRegularProducts" resultType="com.javaex.vo.unionVo">
+        <![CDATA[
+            SELECT MIN(pd.productDetailNum) AS productDetailNum, 
+				       p.productName, 
+				       MIN(pd.productPrice) AS productPrice, 
+				       MIN(c.colorCode) AS colorCode, 
+				       d.displaySize, 
+				       MIN(pi.imageSavedName) AS imageSavedName 
+				FROM ProductDetail pd
+				JOIN Product p ON pd.productNum = p.productNum
+				JOIN Color c ON pd.colorNum = c.colorNum
+				JOIN Storage s ON pd.storageNum = s.storageNum
+				JOIN Display d ON pd.displayNum = d.displayNum
+				LEFT JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum 
+				WHERE p.productName not LIKE '%pro%' and p.productName not LIKE '%se%' 
+				GROUP BY p.productName, d.displaySize 
+				ORDER BY p.productName desc; 
+        ]]>
+    </select>
+    
+    <!-- 3. SE 모델 목록 -->
+    <select id="getSEModels" resultType="com.javaex.vo.unionVo">
+        <![CDATA[
+            SELECT MIN(pd.productDetailNum) AS productDetailNum, 
+				       p.productName, 
+				       MIN(pd.productPrice) AS productPrice, 
+				       MIN(c.colorCode) AS colorCode, 
+				       d.displaySize, 
+				       MIN(pi.imageSavedName) AS imageSavedName 
+				FROM ProductDetail pd
+				JOIN Product p ON pd.productNum = p.productNum
+				JOIN Color c ON pd.colorNum = c.colorNum
+				JOIN Storage s ON pd.storageNum = s.storageNum
+				JOIN Display d ON pd.displayNum = d.displayNum
+				LEFT JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum 
+				WHERE p.productName LIKE '%se%'
+				GROUP BY p.productName, d.displaySize 
+				ORDER BY p.productName desc; 
+    
+        ]]>
+    </select>
+    
+    
+    <!-- 4. 제품 검색 -->
+    <select id="searchProducts" parameterType="String" resultType="com.javaex.vo.unionVo">
+        <![CDATA[
+            SELECT 
+			    p.productNum, 
+			    p.productName, 
+			    MIN(pd.productDetailNum) AS productDetailNum, 
+			    MIN(pd.productPrice) AS productPrice, 
+			    (
+			        SELECT pi.imageSavedName
+			        FROM productImage pi
+			        WHERE pi.productDetailNum = MIN(pd.productDetailNum)  -- 최저가에 해당하는 productDetailNum 사용
+			        ORDER BY pi.imageNum ASC
+			        LIMIT 1
+			    ) AS imageSavedName,
+			    p.seriesNum
+			FROM 
+			    Product p
+			JOIN 
+			    ProductDetail pd ON p.productNum = pd.productNum
+			WHERE 
+			    p.productName LIKE CONCAT('%', #{keyword}, '%')
+			GROUP BY 
+			    p.productNum, p.productName, p.seriesNum
+			ORDER BY 
+			    MIN(pd.productPrice) ASC;
+
+        ]]>
+    </select>
+
+    <!-- 5. 매장 검색 -->
+    <select id="searchStores" parameterType="String" resultType="com.javaex.vo.unionVo">
+        <![CDATA[
+           SELECT 
+			    s.storeNum, 
+			    s.storeName, 
+			    s.storeAddress, 
+			    s.storeNumber, 
+			    s.storeImage, 
+			    s.storeMapImage,  -- 올바른 필드로 수정
+			    s.storeStatus
+			FROM 
+			    Store s
+			WHERE 
+			    (s.storeName LIKE CONCAT('%', #{keyword}, '%') 
+			    OR s.storeAddress LIKE CONCAT('%', #{keyword}, '%')) 
+			    AND s.storeStatus = "운영" and s.storeNum  != 999;
+
+        ]]>
+    </select>
+
+    <!-- 6. 커뮤니티 검색 -->
+    <select id="searchCommunities" parameterType="String" resultType="com.javaex.vo.unionVo">
+        <![CDATA[
+            SELECT 
+                c.boardNum, 
+                c.productNum, 
+                c.userNum, 
+                c.boardContent, 
+                c.boardTitle, 
+                c.boardViews, 
+                c.boardDate
+            FROM Community c
+            WHERE c.boardTitle LIKE CONCAT('%', #{keyword}, '%') 
+               OR c.boardContent LIKE CONCAT('%', #{keyword}, '%')
+        ]]>
+    </select>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <!-- 제품 기본 정보 가져오기 -->
+    <select id="getProductBasicInfo" parameterType="int" resultType="com.javaex.vo.unionVo">
+            <![CDATA[ SELECT 
+			    p.productName, 
+			    pd.productPrice,
+			    s.storageSize,    -- 저장 용량
+			    c.colorCode,      -- 색상 코드
+			    c.colorNum,       -- 색상 번호
+			    d.displaySize     -- 디스플레이 크기
+			FROM 
+			    ProductDetail pd
+			JOIN 
+			    Product p ON pd.productNum = p.productNum
+			JOIN 
+			    Storage s ON pd.storageNum = s.storageNum   -- Storage 테이블과 조인
+			JOIN 
+			    Color c ON pd.colorNum = c.colorNum         -- Color 테이블과 조인
+			JOIN 
+			    Display d ON pd.displayNum = d.displayNum   -- Display 테이블과 조인
+			WHERE 
+			    pd.productDetailNum = #{productDetailNum};
+			]]>
+    </select>
+    
+    <!-- 제품 이미지 가져오기 -->
+    <select id="getProductImages" parameterType="int" resultType="com.javaex.vo.unionVo">
+        <![CDATA[ SELECT 
+				    pi.imageSavedName, 
+				    pi.imagePrimary
+				FROM 
+				    productImage pi
+				WHERE 
+				    pi.productDetailNum = #{productDetailNum}
+				ORDER BY 
+				    pi.imageNum ASC;
+
+			]]>
+    </select>
+    
+    <!-- 추가 이미지 가져오기 -->
+    <select id="getInfoImages" parameterType="int" resultType="com.javaex.vo.unionVo">
+        <![CDATA[ SELECT 
+				    ii.infoImageSavedName, 
+				    ii.infoImagePrimary
+				FROM 
+				    infoImage ii
+				JOIN 
+				    Product p ON ii.productNum = p.productNum
+				JOIN 
+				    ProductDetail pd ON pd.productNum = p.productNum
+				WHERE 
+				    pd.productDetailNum = #{productDetailNum};
+
+			]]>
+    </select>
+    
+    <!-- productName에 pro가 포함된 제품의 색상 가져오기 (pro max 제외) -->
+    <select id="getProductColors" parameterType="int" resultType="com.javaex.vo.unionVo">
+        <![CDATA[
+	        SELECT DISTINCT pd.productDetailNum, p.productName, c.colorName, c.colorCode
+				FROM ProductDetail pd
+				JOIN Product p ON pd.productNum = p.productNum
+				JOIN Color c ON pd.colorNum = c.colorNum
+				JOIN Display d ON pd.displayNum = d.displayNum
+				JOIN Storage s ON pd.storageNum = s.storageNum
+				WHERE p.productName = (
+				    SELECT productName 
+				    FROM Product 
+				    JOIN ProductDetail pd2 ON Product.productNum = pd2.productNum
+				    WHERE pd2.productDetailNum = #{productDetailNum}
+				)
+				AND d.displaySize = (
+				    SELECT d2.displaySize
+				    FROM ProductDetail pd2
+				    JOIN Display d2 ON pd2.displayNum = d2.displayNum
+				    WHERE pd2.productDetailNum = #{productDetailNum}
+				)
+				AND s.storageSize = (
+				    SELECT s2.storageSize
+				    FROM ProductDetail pd2
+				    JOIN Storage s2 ON pd2.storageNum = s2.storageNum
+				    WHERE pd2.productDetailNum = #{productDetailNum}
+				)
+				AND pd.productPrice = (
+				    SELECT pd2.productPrice
+				    FROM ProductDetail pd2
+				    WHERE pd2.productDetailNum = #{productDetailNum}
+				);
+
+        ]]>
+    </select>
+    
+    <!-- pro가 포함된 제품 정보 -->
+    <select id="getAnotherProProducts" parameterType="int" resultType="com.javaex.vo.unionVo">
+          <![CDATA[ 
+	        SELECT MIN(pd.productDetailNum) AS productDetailNum, p.productName, MIN(d.displaySize) AS displaySize, MIN(pd.productPrice) AS productPrice
+				FROM ProductDetail pd
+				JOIN Product p ON pd.productNum = p.productNum
+				JOIN Display d ON pd.displayNum = d.displayNum
+				WHERE p.productName LIKE '%pro%' 
+				AND pd.seriesNum = (
+				    SELECT seriesNum 
+				    FROM ProductDetail 
+				    WHERE productDetailNum = #{productDetailNum}
+				)
+				GROUP BY p.productName
+				ORDER BY MIN(d.displaySize) ASC;]]>
+    </select>
+
+    <!-- pro, se 포함되지 않은 제품 정보 -->
+    <select id="getAnotherRegularProducts" parameterType="int" resultType="com.javaex.vo.unionVo">
+	    <![CDATA[
+		    SELECT MIN(pd.productDetailNum) AS productDetailNum, p.productName, MIN(d.displaySize) AS displaySize, MIN(pd.productPrice) AS productPrice
+		    FROM ProductDetail pd
+		    JOIN Product p ON pd.productNum = p.productNum
+		    JOIN Display d ON pd.displayNum = d.displayNum
+		    WHERE p.productName NOT LIKE '%pro%' 
+		    AND p.productName NOT LIKE '%se%' 
+		    AND pd.seriesNum = (
+		        SELECT seriesNum 
+		        FROM ProductDetail 
+		        WHERE productDetailNum = #{productDetailNum}
+		    )
+		    GROUP BY p.productName
+		    ORDER BY MIN(d.displaySize) ASC;
 		    ]]>
-		</select>
+	</select>
+
+    <!-- se가 포함된 제품 정보 -->
+    <select id="getAnotherSeProducts" parameterType="int" resultType="com.javaex.vo.unionVo">
+	    <![CDATA[
+	    SELECT MIN(pd.productDetailNum) AS productDetailNum, p.productName, MIN(d.displaySize) AS displaySize, MIN(pd.productPrice) AS productPrice
+	    FROM ProductDetail pd
+	    JOIN Product p ON pd.productNum = p.productNum
+	    JOIN Display d ON pd.displayNum = d.displayNum
+	    WHERE p.productName LIKE '%se%' 
+	    AND pd.seriesNum = (
+	        SELECT seriesNum 
+	        FROM ProductDetail 
+	        WHERE productDetailNum = #{productDetailNum}
+	    )
+	    GROUP BY p.productName
+	    ORDER BY MIN(d.displaySize) ASC;
+	    ]]>
+	</select>
+    
+    <select id="getOtherSotrages" parameterType="int" resultType="com.javaex.vo.unionVo">
+           <![CDATA[
+	           SELECT pd.productDetailNum, p.productName, s.storageSize, d.displaySize, pd.productPrice
+					FROM ProductDetail pd
+					JOIN Product p ON pd.productNum = p.productNum
+					JOIN Storage s ON pd.storageNum = s.storageNum
+					JOIN Display d ON pd.displayNum = d.displayNum
+					WHERE p.productName = (
+					    SELECT p2.productName 
+					    FROM ProductDetail pd2
+					    JOIN Product p2 ON pd2.productNum = p2.productNum
+					    WHERE pd2.productDetailNum = #{productDetailNum}
+					)
+					AND pd.colorNum = (
+					    SELECT pd2.colorNum
+					    FROM ProductDetail pd2
+					    WHERE pd2.productDetailNum = #{productDetailNum}
+					)
+					AND d.displaySize = (
+					    SELECT d2.displaySize
+					    FROM ProductDetail pd2
+					    JOIN Display d2 ON pd2.displayNum = d2.displayNum
+					    WHERE pd2.productDetailNum = #{productDetailNum}
+					)
+					ORDER BY pd.productDetailNum ASC;
+
+
+			]]>
+    </select>
+
     
     
     
     
-    	
-   	</mapper>
+    
+    
+    
+    <select id="getAccs" resultType="com.javaex.vo.unionVo">
+        <![CDATA[
+            SELECT 
+			    pd.productDetailNum, 
+			    p.productName, 
+			    pd.productPrice, 
+			    pi.imageSavedName
+			   
+			FROM 
+			    ProductDetail pd
+			JOIN 
+			    Product p ON pd.productNum = p.productNum
+			LEFT JOIN 
+			    productImage pi ON pd.productDetailNum = pi.productDetailNum AND pi.imagePrimary = 1
+			WHERE 
+			    p.seriesNum = (SELECT seriesNum FROM `Series` WHERE seriesName = '악세사리');
+
+
+        ]]>
+    </select>
+    
+    
+    
+    
+    
+    
+    
+    <select id="getRelatedProducts" parameterType="int" resultType="com.javaex.vo.unionVo">
+	    <![CDATA[
+	    SELECT 
+	        pd.productDetailNum,
+	        p.productName,
+	        pd.productPrice,
+	        pi.imageSavedName
+	    FROM 
+	        ProductDetail pd
+	    JOIN 
+	        Product p ON pd.productNum = p.productNum
+	    LEFT JOIN 
+	        productImage pi ON pd.productDetailNum = pi.productDetailNum AND pi.imagePrimary = 1
+	    WHERE 
+	        pd.seriesNum = (SELECT seriesNum FROM ProductDetail WHERE productDetailNum = #{productDetailNum}) 
+	        AND pd.productDetailNum != #{productDetailNum}
+	    ]]>
+	</select>
+    
+    
+    
+    
+    
+    <!-- 중복제품 확인 -->
+    <select id="checkCartItemExists" parameterType="com.javaex.vo.unionVo" resultType="int">
+	    <![CDATA[ SELECT count
+	    FROM ShoppingCart
+	    WHERE productDetailNum = #{productDetailNum}
+	    AND userNum = #{userNum}
+	     ]]>
+	</select>
+	
+	<!-- Step 2: 있으면 업데이트 -->
+	<update id="updateCartItemCount" parameterType="com.javaex.vo.unionVo">
+	    <![CDATA[UPDATE ShoppingCart
+	    SET count = count + 1
+	    WHERE productDetailNum = #{productDetailNum}
+	    AND userNum = #{userNum}
+	     ]]>
+	</update>
+	
+	<!-- Step 3: 없으면 삽입 -->
+	<insert id="insertCartItem" parameterType="com.javaex.vo.unionVo">
+	    <![CDATA[INSERT INTO ShoppingCart (cartNum, productDetailNum, userNum, count)
+	    VALUES (null, #{productDetailNum}, #{userNum}, 1)
+	     ]]>
+	</insert>
+    
+   	<!-- 위시리스트에 같은 상품이 있는지 확인 -->
+	<select id="checkLikedItemExists" parameterType="com.javaex.vo.unionVo" resultType="int">
+	    <![CDATA[
+	    SELECT count(*)
+	    FROM likedProduct
+	    WHERE productDetailNum = #{productDetailNum}
+	    AND userNum = #{userNum}
+	    ]]>
+	</select>
+	
+	<!-- 같은 상품이 없으면 삽입 -->
+	<insert id="insertLikedItem" parameterType="com.javaex.vo.unionVo">
+	    <![CDATA[
+	    INSERT INTO likedProduct (userNum, productDetailNum)
+	    VALUES (#{userNum}, #{productDetailNum})
+	    ]]>
+	</insert>
+
+	<delete id="deleteAllLikedProducts" parameterType="int">
+	    <![CDATA[DELETE FROM likedProduct 
+	    WHERE userNum = #{userNum};	     ]]>
+	    
+	</delete>
+
+    
+    <select id="getWishlistByUser" parameterType="int" resultType="com.javaex.vo.unionVo">
+        <![CDATA[
+                SELECT 
+			    pd.productDetailNum,   -- productDetailNum 추가
+			    p.productName, 
+			    s.storageSize, 
+			    c.colorName, 
+			    pi.imageSavedName 
+			FROM likedProduct lp
+			JOIN ProductDetail pd ON lp.productDetailNum = pd.productDetailNum
+			JOIN Product p ON pd.productNum = p.productNum
+			JOIN Storage s ON pd.storageNum = s.storageNum
+			JOIN Color c ON pd.colorNum = c.colorNum
+			JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum
+			WHERE lp.userNum = #{userNum}
+			  AND pi.imagePrimary = 1
+        ]]>
+    </select>
+    
+</mapper>
