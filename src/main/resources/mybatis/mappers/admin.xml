@@ -354,7 +354,7 @@
 			    inner join Display d on pd.displayNum = d.displayNum
 			    inner join Storage stor on pd.storageNum = stor.storageNum
 			    inner join productImage img on pd.productDetailNum = img.productDetailNum
-			    where img.imagePrimary = 1
+			    where img.imagePrimary = 3
 			    and (p.productName LIKE CONCAT('%', #{keyword}, '%')
 			         OR ser.seriesName LIKE CONCAT('%', #{keyword}, '%')
 			         OR c.colorName LIKE CONCAT('%', #{keyword}, '%')
