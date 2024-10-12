@@ -1,18 +1,17 @@
 package com.javaex.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.javaex.service.AdminService2;
 import com.javaex.util.JsonResult;
+import com.javaex.vo.ProductDetailVo;
 import com.javaex.vo.StoreVo;
 import com.javaex.vo.unionVo;
 
@@ -128,7 +127,16 @@ public class AdminController2 {
 		
 	}
 	
-	//-----------2024/10/11
+	//-----------2024/10/12
+	
+	@GetMapping("/api/productList3")
+	public JsonResult getProductListAll2() {
+		System.out.println("AdminController2.getProductListAll2()");
+
+		List<ProductDetailVo> productListAll = adminService2.exeGetProductListAll2();
+
+		return JsonResult.success(productListAll);
+	}
 
 
 }

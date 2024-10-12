@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.javaex.dao.AdminDao2;
+import com.javaex.vo.ProductDetailVo;
 import com.javaex.vo.StoreVo;
 import com.javaex.vo.unionVo;
 
@@ -86,7 +87,12 @@ public class AdminService2 {
 		return storeVo;
 	}
 	
-	//-----------2024/10/11
+	//-----------2024/10/12
+	// 전체 상품 목록 반환 메소드
+    public List<ProductDetailVo> exeGetProductListAll2() {
+        System.out.println("AdminService2.exeGetProductListAll2()");
+        return adminDao2.getProductListAll2();  // Dao에서 전체 목록을 가져옴
+    }
 
 
 }

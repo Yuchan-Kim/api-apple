@@ -7,6 +7,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.javaex.vo.ProductDetailVo;
 import com.javaex.vo.StoreVo;
 import com.javaex.vo.unionVo;
 
@@ -86,7 +87,11 @@ public class AdminDao2 {
 		return storeVo;
 	}
 	
-	//--2024/10
+	//--2024/10/12
+	public List<ProductDetailVo> getProductListAll2() {
+        System.out.println("AdminDao2.getProductListAll2()");
+        return sqlSession.selectList("admin.selectProductListAll2");  // Mapper에서 전체 상품 목록을 가져옴
+    }
 
 
 }
