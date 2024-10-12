@@ -75,7 +75,7 @@ public class AdminService {
 		}
 
 		// 저장된 파일명 반환
-		return saveName;
+		return orgName;
 	}
 
 	/* 상품 + 본문 이미지 등록 */

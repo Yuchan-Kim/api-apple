@@ -329,7 +329,8 @@
 	         inner join Display d on pd.displayNum = d.displayNum
 	         inner join Storage stor on pd.storageNum = stor.storageNum
 	         inner join productImage img on pd.productDetailNum = img.productDetailNum
-	            where img.imagePrimary = 1
+			 where img.imagePrimary = 1
+             and img.imageSavedName like concat('%', c.colorName, '%')
 	         order by pd.productDetailNum desc
 	      ]]>
 	   </select>
