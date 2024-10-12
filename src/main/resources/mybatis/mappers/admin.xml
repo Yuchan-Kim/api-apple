@@ -329,7 +329,7 @@
 		JOIN Storage s ON pd.storageNum = s.storageNum
 		JOIN Series sr ON pd.seriesNum = sr.seriesNum
 		JOIN Display d ON pd.displayNum = d.displayNum
-		WHERE pi.imagePrimary = 1
+		WHERE pi.imagePrimary = 3
 		ORDER BY pd.productDetailNum desc
 	      ]]>
 	   </select>
