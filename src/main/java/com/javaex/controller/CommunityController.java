@@ -89,7 +89,7 @@ public class CommunityController {
 		System.out.println("CommunityController.commentWrite()");
 		
 		CommentVo returnVo = communityService.exeCommentWrite(commentVo);
-		System.out.println("returnVo"+returnVo);
+		System.out.println("returnVo"+returnVo); 
 		if(returnVo != null) {
 			return JsonResult.success(returnVo);
 		}else { 				//로그인 안됨
