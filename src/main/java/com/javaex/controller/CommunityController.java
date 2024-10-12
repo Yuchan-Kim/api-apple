@@ -21,7 +21,7 @@ public class CommunityController {
 	private CommunityService communityService;
 	
 	/* 커뮤니티 리스트폼 */
-	// http://localhost:3000/community
+	// http://localhost:3000/community 
 	@GetMapping("/api/communitys")
 	public JsonResult communityList() {
 		System.out.println("CommunityController.communityList()");
