@@ -104,17 +104,21 @@
 			        ORDER BY pi.imageNum ASC
 			        LIMIT 1
 			    ) AS imageSavedName,
-			    p.seriesNum
+			    p.seriesNum,
+			    s.seriesName  -- seriesName 추가
 			FROM 
 			    Product p
 			JOIN 
 			    ProductDetail pd ON p.productNum = pd.productNum
+			JOIN 
+			    Series s ON p.seriesNum = s.seriesNum  -- Series 테이블과 조인
 			WHERE 
 			    p.productName LIKE CONCAT('%', #{keyword}, '%')
 			GROUP BY 
-			    p.productNum, p.productName, p.seriesNum
+			    p.productNum, p.productName, p.seriesNum, s.seriesName  -- seriesName을 GROUP BY에 추가
 			ORDER BY 
 			    MIN(pd.productPrice) ASC;
+
 
         ]]>
     </select>
