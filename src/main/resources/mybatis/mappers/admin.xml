@@ -312,26 +312,24 @@
  	<!-- 상품 리스트 모두 가져오기 -->
     <select id="selectProductListAll" resultType="com.javaex.vo.ProductDetailVo">
 	      <![CDATA[ 
-	         select pd.seriesNum,
-	                pd.productNum,
-	                pd.productDetailNum,
-	                ser.seriesName,
-	                p.productName,
-	                d.displaySize,
-	                c.colorName,
-	                pd.productPrice,
-	                stor.storageSize,
-	                img.imageSavedName
-	         from ProductDetail pd
-	         inner join Product p on pd.productNum = p.productNum
-	         inner join Series ser on p.seriesNum = ser.seriesNum
-	         inner join Color c on pd.colorNum = c.colorNum
-	         inner join Display d on pd.displayNum = d.displayNum
-	         inner join Storage stor on pd.storageNum = stor.storageNum
-	         inner join productImage img on pd.productDetailNum = img.productDetailNum
-			 where img.imagePrimary = 1
-             and img.imageSavedName like concat('%', c.colorName, '%')
-	         order by pd.productDetailNum desc
+	         SELECT 
+				    pd.productDetailNum,
+				    pi.imageSavedName,
+				    c.colorName,
+				    p.productName,
+				    pd.productPrice,
+				    s.storageSize,
+				    sr.seriesName,
+				    d.displaySize,
+				    p.productNum
+			FROM ProductDetail pd
+			JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum
+			JOIN Color c ON pd.colorNum = c.colorNum
+			JOIN Product p ON pd.productNum = p.productNum
+			JOIN Storage s ON pd.storageNum = s.storageNumSeries sr ON pd.seriesNum = sr.seriesNum
+			JOIN Display d ON pd.displayNum = d.displayNum
+			WHERE pi.imagePrimary = 1
+			order by productDetailNum desc
 	      ]]>
 	   </select>
 	   
