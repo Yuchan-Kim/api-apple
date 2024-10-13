@@ -76,27 +76,25 @@
    <!-- 마이페이지 구매 -->
    <select id="selectPurchaseProduct" parameterType="int" resultType="com.javaex.vo.MyProductVo">
       <![CDATA[ 
-         select u.userNum, 
-               p.productName, 
-               pd.productNum, 
-               pd.productPrice, 
-               pi.imageSavedName, 
-               h.productCount, 
-               r.totalPrice,
-               r.receiptNum,
-                 st.storageSize 
-         from User u, Product p, ProductDetail pd, productImage pi, History h, Receipt r, Storage st 
-         where u.userNum = r.userNum 
-         and p.productNum = pd.productNum 
-         and pd.productDetailNum = pi.productDetailNum 
-         and pd.storageNum = st.storageNum 
-         and h.productDetailNum = pd.productDetailNum 
-         and r.receiptNum = h.receiptNum 
-         and u.userNum =#{userNum} 
-         AND r.receiptNum = ( SELECT MAX(receiptNum) 
-         FROM Receipt WHERE userNum = r.userNum )
-         and pi.imagePrimary = 1
-         limit 3;
+		select u.userNum, 
+		   		p.productName, 
+		   		pd.productNum, 
+		   		pd.productPrice, 
+		   		pi.imageSavedName, 
+		   		h.productCount, 
+		   		r.totalPrice,
+		   		r.receiptNum,
+			 	st.storageSize 
+		FROM User u
+		JOIN Receipt r ON u.userNum = r.userNum
+		JOIN History h ON r.receiptNum = h.receiptNum
+		JOIN ProductDetail pd ON h.productDetailNum = pd.productDetailNum
+		JOIN Product p ON pd.productNum = p.productNum
+		JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum
+		JOIN Storage st ON pd.storageNum = st.storageNum
+		WHERE u.userNum = #{userNum}
+		AND pi.imagePrimary = 1
+		LIMIT 3;
       ]]>
    </select>
    
