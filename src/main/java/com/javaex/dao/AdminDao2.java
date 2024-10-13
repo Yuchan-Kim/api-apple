@@ -60,6 +60,14 @@ public class AdminDao2 {
 
 		return count;
 	}
+	
+	public int pickUp(unionVo unionVo) {
+		System.out.println("AdminDao.productArrived()");
+
+		int count = sqlSession.update("admin.pickUp", unionVo);
+
+		return count;
+	}
 
 	// history
 	public List<unionVo> historySelectList() {

@@ -614,6 +614,7 @@
 	      JOIN User ON Receipt.userNum = `User`.userNum
 	      LEFT JOIN productImage ON ProductDetail.productDetailNum = productImage.productDetailNum  -- Use LEFT JOIN to allow products without images
 	      WHERE Receipt.shippingStatus != '배송 완료'
+	      AND Receipt.shippingStatus != '픽업 완료'
           AND productImage.imagePrimary = 3
 	      GROUP BY 
 	          Receipt.receiptNum,
@@ -635,7 +636,8 @@
 	          Receipt.purchasedDate,
 	          Receipt.shippingAddress,
 	          Receipt.shippingStatus,
-	          Receipt.totalPrice
+	          Receipt.totalPrice 
+	      ORDER BY Receipt.purchasedDate ASC;
 	       ]]>
 	   </select>
 	
@@ -651,6 +653,14 @@
 	       <![CDATA[
 	       UPDATE Receipt
 	       SET shippingStatus = '배송 완료'
+	       WHERE receiptNum = #{receiptNum}
+	       ]]>
+	   </update>
+	   
+	   <update id="pickUp" parameterType="com.javaex.vo.unionVo">
+	       <![CDATA[
+	       UPDATE Receipt
+	       SET shippingStatus = '픽업 완료'
 	       WHERE receiptNum = #{receiptNum}
 	       ]]>
 	   </update>
@@ -693,7 +703,7 @@
 	      JOIN Store ON Receipt.storeNum = Store.storeNum
 	      JOIN User ON Receipt.userNum = User.userNum
 	      LEFT JOIN productImage ON ProductDetail.productDetailNum = productImage.productDetailNum  -- Use LEFT JOIN to allow products without images
-	      WHERE Receipt.shippingStatus = '배송 완료'
+	      WHERE (Receipt.shippingStatus = '배송 완료' OR Receipt.shippingStatus = '픽업 완료')
 	      AND productImage.imagePrimary = 3
 	      GROUP BY 
 	          Receipt.receiptNum,
@@ -716,6 +726,7 @@
 	          Receipt.shippingAddress,
 	          Receipt.shippingStatus,
 	          Receipt.totalPrice
+			ORDER BY Receipt.purchasedDate DESC;	          
 	       ]]>
    </select>
   	

@@ -86,6 +86,19 @@ public class AdminController2 {
 			return JsonResult.success(count);
 		}
 	}
+	
+	@PutMapping("/api/admin/delivery/pickup/{no}")
+	public JsonResult pickUp(@PathVariable("no") int userNum, @RequestBody unionVo unionVo) {
+		System.out.println("AdminController.pickUp()");
+
+		int count = adminService2.exePickUp(unionVo);
+
+		if (count != 1) { // Update failed
+			return JsonResult.fail("Update failed");
+		} else { // Update success 
+			return JsonResult.success(count);
+		}
+	}
 
 	@GetMapping("/api/admin/history")
 	public JsonResult getHistoryList() {

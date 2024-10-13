@@ -60,6 +60,14 @@ public class AdminService2 {
 
 		return count;
 	}
+	
+	public int exePickUp(unionVo unionVo) {
+		System.out.println("AdminService.exePickUp");
+
+		int count = adminDao2.pickUp(unionVo);
+
+		return count;
+	}
 
 	// history
 	public List<unionVo> exeHistoryList() {
