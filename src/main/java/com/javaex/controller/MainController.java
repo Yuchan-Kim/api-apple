@@ -80,7 +80,7 @@ public class MainController {
     }
 
     @GetMapping("api/search/communities/{keyword}")
-    public JsonResult searchCommunities(@PathVariable String keyword) {
+    public JsonResult searchCommunities(@PathVariable String keyword) { 
         System.out.println("커뮤니티 검색어: " + keyword);
         try {
             List<unionVo> searchResults = mainservice.searchCommunities(keyword);
