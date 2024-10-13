@@ -32,8 +32,7 @@
 			        SELECT pi.imageSavedName 
 			        FROM productImage pi 
 			        WHERE pi.productDetailNum = pd.productDetailNum 
-			        ORDER BY pi.imageNum ASC 
-			        LIMIT 1
+			        LIMIT 1 OFFSET 2
 				    ) AS imageSavedName
 			FROM 
 			    ShoppingCart sc
@@ -235,13 +234,27 @@
 	<select id="receiptList" parameterType="com.javaex.vo.unionVo"
 		resultType="com.javaex.vo.unionVo">
 		<![CDATA[ 
-			SELECT h.historyNum, r.shippingStatus, h.productCount, h.productDetailNum, 
-			       pd.productPrice, p.productName, s.seriesName, 
-			       c.colorName, d.displaySize, st.storageSize, 
-			       r.receiptNum, DATE_FORMAT(r.purchasedDate, '%Y-%m-%d') AS purchasedDate, r.shippingAddress, r.totalPrice,
-			       store.storeName, store.storeAddress, store.storeNumber, store.storeMapImage,
-			       pi.imageSavedName AS productImage,
+			SELECT h.historyNum, 
+			       r.shippingStatus, 
+			       h.productCount, 
+			       h.productDetailNum, 
+			       pd.productPrice, 
+			       p.productName, 
+			       s.seriesName, 
+			       c.colorName, 
+			       d.displaySize, 
+			       st.storageSize, 
+			       r.receiptNum, 
+			       DATE_FORMAT(r.purchasedDate, '%Y-%m-%d') AS purchasedDate, 
+			       r.shippingAddress, 
+			       r.totalPrice,
+			       store.storeName, 
+			       store.storeAddress, 
+			       store.storeNumber, 
+			       store.storeMapImage,
+			       pi.imageSavedName AS imageSavedName,
 			       u.userAddress -- 유저 주소 추가
+			       
 			FROM History h
 			JOIN ProductDetail pd ON h.productDetailNum = pd.productDetailNum
 			JOIN Product p ON pd.productNum = p.productNum
@@ -251,7 +264,14 @@
 			JOIN Storage st ON pd.storageNum = st.storageNum
 			JOIN Receipt r ON h.receiptNum = r.receiptNum
 			LEFT JOIN Store store ON r.storeNum = store.storeNum  -- 스토어 정보 조인
-			LEFT JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum AND pi.imagePrimary = 1  -- 주 이미지(대표 이미지)만 선택
+			LEFT JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum 
+			    AND pi.imageNum = (
+			        SELECT pi2.imageNum 
+			        FROM productImage pi2 
+			        WHERE pi2.productDetailNum = pd.productDetailNum 
+			        ORDER BY pi2.imageNum 
+			        LIMIT 1 OFFSET 2  -- 3번째 이미지 (0-based index)
+			    )  
 			JOIN User u ON r.userNum = u.userNum  -- 유저 정보 조인
 			WHERE r.userNum = #{userNum}
 			AND r.receiptNum = (
@@ -259,7 +279,6 @@
 			    FROM Receipt 
 			    WHERE userNum = r.userNum
 			);
-
 		]]>
 	</select>
 
