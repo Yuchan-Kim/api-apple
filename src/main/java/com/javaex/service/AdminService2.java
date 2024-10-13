@@ -88,9 +88,9 @@ public class AdminService2 {
 	
 	//-----2024/10/10
 	public StoreVo exeGetStoreSelectOne(int storeNum) {
-		System.out.println("AdminService.getStoreSelectOne()");
+		System.out.println("AdminService.exeGetStoreSelectOne()");
 
-		StoreVo storeVo = adminDao2.storeSelectOne(storeNum);
+		StoreVo storeVo = adminDao2.getStoreSelectOne(storeNum);
 
 		return storeVo;
 	}

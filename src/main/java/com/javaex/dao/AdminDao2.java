@@ -87,8 +87,8 @@ public class AdminDao2 {
 	}
 	
 	//-----2024/10/10
-	public StoreVo storeSelectOne(int storeNum) {
-		System.out.println("AdminDao.storeSelectOne()");
+	public StoreVo getStoreSelectOne(int storeNum) {
+		System.out.println("AdminDao.getStoreSelectOne()");
 
 		StoreVo storeVo = sqlSession.selectOne("admin.storeSelectOne", storeNum);
 
