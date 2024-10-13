@@ -131,19 +131,16 @@
                c.colorName, 
                pi.imageSavedName,
                st.storageSize 
-         from User u, Receipt r, History h, ProductDetail pd, Product p, Color c, productImage pi, Storage st 
-         where u.userNum = r.userNum 
-         and r.receiptNum = h.receiptNum 
-         and h.productDetailNum = pd.productDetailNum 
-         and pd.productNum = p.productNum 
-         and p.productNum = c.productNum 
-         and pd.colorNum = c.colorNum 
-         and pd.productDetailNum = pi.productDetailNum
-         and pd.storageNum = st.storageNum 
-         AND r.receiptNum = ( SELECT MAX(receiptNum) 
-         FROM Receipt WHERE userNum = r.userNum )
-         and pi.imagePrimary = 1
-         and u.userNum =#{userNum} 
+		FROM User u
+		JOIN Receipt r ON u.userNum = r.userNum 
+		JOIN History h ON r.receiptNum = h.receiptNum 
+		JOIN ProductDetail pd ON h.productDetailNum = pd.productDetailNum 
+		JOIN Product p ON pd.productNum = p.productNum 
+		JOIN Color c ON p.productNum = c.productNum AND pd.colorNum = c.colorNum 
+		JOIN productImage pi ON pd.productDetailNum = pi.productDetailNum 
+		JOIN Storage st ON pd.storageNum = st.storageNum 
+		WHERE u.userNum = #{userNum}
+		AND pi.imagePrimary = 1
       ]]>
    </select>
    
