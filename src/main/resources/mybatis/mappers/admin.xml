@@ -694,6 +694,7 @@
 	      JOIN User ON Receipt.userNum = User.userNum
 	      LEFT JOIN productImage ON ProductDetail.productDetailNum = productImage.productDetailNum  -- Use LEFT JOIN to allow products without images
 	      WHERE Receipt.shippingStatus = '배송 완료'
+	      AND productImage.imagePrimary = 3
 	      GROUP BY 
 	          Receipt.receiptNum,
 	          History.historyNum,
