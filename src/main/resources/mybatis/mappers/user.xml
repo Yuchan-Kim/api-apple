@@ -94,7 +94,7 @@
 		JOIN Storage st ON pd.storageNum = st.storageNum
 		WHERE u.userNum = #{userNum}
 		AND pi.imagePrimary = 1
-		LIMIT 3;
+		LIMIT 3
       ]]>
    </select>
    
